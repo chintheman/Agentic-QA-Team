@@ -1,0 +1,15 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "chintheman-qa",
+  "owner": {
+    "name": "chintheman"
+  },
+  "description": "Agentic QA Team \u2014 an evidence-first QA fleet for Claude Code, with mechanical gates rather than prompt-only advice.",
+  "plugins": [
+    {
+      "name": "agentic-qa-team",
+      "source": "./",
+      "description": "A QA team of subagents that writes tests, hunts bugs, proposes fixes, and issues an evidence-backed ship/hold verdict."
+    }
+  ]
+}

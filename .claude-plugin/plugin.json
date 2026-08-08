@@ -1,0 +1,22 @@
+{
+  "$schema": "https://anthropic.com/claude-code/plugin.schema.json",
+  "name": "agentic-qa-team",
+  "version": "1.0.0",
+  "description": "A QA team of subagents that writes tests, hunts bugs, proposes fixes, and issues an evidence-backed ship/hold verdict. Install it once and run /qa-init in any repository.",
+  "author": {
+    "name": "chintheman"
+  },
+  "homepage": "https://github.com/chintheman/Agentic-QA-Team",
+  "repository": "https://github.com/chintheman/Agentic-QA-Team",
+  "license": "MIT",
+  "keywords": [
+    "testing",
+    "qa",
+    "mutation-testing",
+    "code-review",
+    "test-generation"
+  ],
+  "commands": "./.claude/commands",
+  "skills": "./.claude/skills",
+  "hooks": "./.claude/qa-ci-settings.json"
+}

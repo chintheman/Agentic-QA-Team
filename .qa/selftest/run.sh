@@ -18,6 +18,7 @@ run "G5 separation-of-duties guard" bash "$HERE/guard-selftest.sh"
 run "G1 fails-before three-state"   bash "$HERE/g1-selftest.sh"
 run "G3 vacuity detection"          bash "$HERE/g3-selftest.sh"
 run "G6/G7 gate behaviour"          bash "$HERE/g67-selftest.sh"
+run "agents/ mirrors .claude/agents/" bash "$KIT/scripts/qa-sync-agents.sh" --check
 
 echo
 if [[ $fails -eq 0 ]]; then
