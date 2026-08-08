@@ -1,0 +1,88 @@
+name: qa-nightly
+
+# The nightly sweep (spec §6.3).
+#
+# The PR loop tells you a change is safe. The nightly sweep tells you the SYSTEM
+# is safe — that is where the proactive value lives.
+
+on:
+  schedule:
+    - cron: "0 2 * * *"      # after qa-history
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sweep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      QA_PR: nightly
+      QA_DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+
+      - name: Confirm history is fresh
+        run: |
+          # risk-scout and the charter prioritisation both read this. If it is
+          # stale the sweep still runs, but say so rather than quietly using
+          # month-old churn data.
+          gen=$(jq -r '.generated // "never"' .qa/metrics/history.json 2>/dev/null || echo never)
+          echo "history.json generated: $gen"
+          [ "$gen" = "$(date -u +%Y-%m-%d)" ] || echo "::warning::history.json is not from today ($gen)"
+
+      - name: flake-warden — 30-day analysis, quarantine, pruning
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: "Run the nightly flake analysis: 30-day flake rate, quarantine expiry, suite pruning candidates, and promote any real intermittent bug to .qa/bugs/."
+          claude_args: >-
+            --settings .claude/qa-ci-settings.json
+            --agent flake-warden
+            --max-turns 25 --model claude-sonnet-4-5
+            --permission-mode dontAsk --max-budget-usd 6.00 --output-format json
+            --tools "Read,Grep,Glob,Write,Bash"
+
+      # Three sessions, prioritised by risk x inverse mutation score.
+      - name: prober — exploratory sessions
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: "Run 3 exploratory sessions from .qa/charters/backlog.md, prioritised by risk x inverse mutation score. One charter per session."
+          claude_args: >-
+            --settings .claude/qa-ci-settings.json
+            --agent prober
+            --max-turns 25 --model claude-sonnet-4-5
+            --permission-mode dontAsk --max-budget-usd 12.00 --output-format json
+            --tools "Read,Grep,Glob,Write,Bash"
+
+      # One module per night, not a sweep — depth beats breadth here.
+      - name: unit-smith — harden the weakest high-risk module
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: "Identify the single lowest-mutation-score high-risk module and run the mutation loop on it. One module only."
+          claude_args: >-
+            --settings .claude/qa-ci-settings.json
+            --agent unit-smith
+            --max-turns 30 --model claude-sonnet-4-5
+            --permission-mode dontAsk --max-budget-usd 8.00 --output-format json
+            --tools "Read,Grep,Glob,Write,Edit,Bash"
+
+      - name: Compact per-PR metrics into the rolling corpus
+        run: python3 scripts/qa-compact-metrics.py || true
+
+      - name: Open a PR only if something warrants attention
+        run: |
+          git config user.name "qa-team[bot]"
+          git config user.email "qa-team@users.noreply.github.com"
+          if git diff --quiet && git diff --staged --quiet; then
+            echo "nothing to report"; exit 0
+          fi
+          branch="qa/nightly-$(date -u +%Y%m%d)"
+          git checkout -b "$branch"
+          git add -A && git commit -m "chore(qa): nightly sweep $(date -u +%Y-%m-%d)"
+          git push -u origin "$branch"

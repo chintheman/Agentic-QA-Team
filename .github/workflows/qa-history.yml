@@ -1,0 +1,35 @@
+name: qa-history
+
+# Precompute .qa/metrics/history.json (spec §3.1, §6.3 step 1).
+#
+# A plain script. No LLM, no cost. This is what resolves the tension between P7
+# (agents that solve get no git history) and risk analysis (which needs it): the
+# mining is done here, and risk-scout reads the result.
+#
+# Must run FIRST in the nightly sequence — risk-scout is blind without it.
+
+on:
+  schedule:
+    - cron: "0 1 * * *"      # 01:00 UTC, ahead of the nightly sweep
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  history:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0     # a shallow clone yields near-empty history and
+                             # would band every file as low-risk
+      - run: python3 scripts/qa-history.py --days 90 --hotfix-days 365
+      - name: Commit if changed
+        run: |
+          git config user.name "qa-team[bot]"
+          git config user.email "qa-team@users.noreply.github.com"
+          git add .qa/metrics/history.json
+          git diff --staged --quiet || git commit -m "chore(qa): refresh history.json"
+          git push || true

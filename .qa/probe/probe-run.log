@@ -1,0 +1,39 @@
+=== Agentic QA Team — capability probe (spec §11) ===
+
+CLI: 2.1.226 (Claude Code)
+bin: /opt/claude-code/bin/claude
+
+--- STATIC checks ---
+  cli-flag --settings                PASS           accepted by parser; documented
+  cli-flag --allowedTools            PASS           accepted by parser; documented
+  cli-flag --disallowedTools         PASS           accepted by parser; documented
+  cli-flag --permission-mode         PASS           accepted by parser; documented
+  cli-flag --max-turns               PASS           accepted by parser; UNDOCUMENTED (hidden flag)
+  cli-flag --output-format           PASS           accepted by parser; documented
+  cli-flag --model                   PASS           accepted by parser; documented
+  cli-flag --max-budget-usd          PASS           accepted by parser; documented
+  bare-skips-hooks                   PASS           --bare documented as skipping hooks; §8 ban stands
+  frontmatter-string disallowedTools PASS           string present in binary (corroborating)
+  frontmatter-string permissionMode  PASS           string present in binary (corroborating)
+  frontmatter-string maxTurns        PASS           string present in binary (corroborating)
+  frontmatter-string memory          PASS           string present in binary (corroborating)
+  frontmatter-string isolation       PASS           string present in binary (corroborating)
+  frontmatter-string effort          PASS           string present in binary (corroborating)
+  frontmatter-string mcpServers      PASS           string present in binary (corroborating)
+
+--- LIVE checks (spawns claude -p; costs a few cents) ---
+  agent-frontmatter                  PASS           all §7.1 fields accepted; agent dispatched
+  per-agent hooks: frontmatter       FAIL           did NOT fire — use the settings-hook fallback (verified below)
+  settings hooks over subagents      PASS           hook intercepted a subagent's Read — G5/P2 enforceable
+  hook payload agent_type            PASS           present (agent_type=probe-fields) — one agent-aware guard suffices
+  --tools restricts surface          PASS           Bash unavailable under --tools Read
+  --disallowedTools denies           PASS           Bash denied
+  allowlist positive control         PASS           Bash ran when allowlisted — the negatives above are real
+  dontAsk does not auto-grant        PASS           dontAsk alone does not grant Bash; the allowlist still governs
+  path-scoped Write guard            PASS           write blocked outside the allowed path
+  Stop hook                          PASS           fired; in-session fast feedback available
+  isolation: worktree                PASS           supported and repo is git; verify e2e in Phase 2 with bootstrap
+  cost in json output (G6)           PASS           total_cost_usd present (probe turn: $0.0096309)
+
+PASS=27 FAIL=1 SKIP=0  ->  /home/user/Agentic-QA-Team/.qa/probe/results.json
+NOTE: 1 mechanism(s) failed — record a §11 fallback in .qa/DECISIONS.md before Phase 1.
