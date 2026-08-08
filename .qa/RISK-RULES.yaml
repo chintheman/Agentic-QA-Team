@@ -1,0 +1,100 @@
+# Risk banding rules (spec §3.1).
+#
+# Rule-based on purpose. §16 records why the alternative was cut: "five
+# likelihood weights x five impact factors to two decimal places, fitted to zero
+# data, is numerology dressed as a score." These globs are meant to be read,
+# argued with, and amended by a human.
+#
+# FIRST MATCHING RULE WINS — order matters.
+#
+# STATUS: placeholder paths. These are the shape, not the answer. Replace the
+# globs with real ones from the target repo (§15 Q13–Q15) and have a human sign
+# off before Phase 3, per the Phase 0 acceptance criteria.
+version: 1
+
+rules:
+  - if:
+      paths: ["src/billing/**", "src/payments/**", "src/auth/**", "**/migrations/**"]
+    band: critical
+    why: "money, identity, irreversible schema change"
+
+  - if:
+      paths: ["src/api/**"]
+      lines_changed: ">50"
+    band: high
+    why: "large change to the public surface"
+
+  - if:
+      paths_touched_in_last_3_hotfixes: true
+    band: high
+    why: "recent defect history — the best cheap predictor there is"
+
+  - if:
+      paths: ["**/*.test.*", "**/*.spec.*", "**/*.md", "**/*.css", "**/*.scss"]
+      only: true
+    band: low
+    why: "no production behaviour can change"
+
+  - if:
+      lines_changed: "<20"
+      files_changed: "<3"
+    band: medium
+
+  - default: medium
+
+# Bump the matched band up exactly one level. Applied after rule matching.
+escalators:
+  - no_covering_test_for_changed_file
+  - deletes_or_alters_a_db_migration
+  - changes_a_public_api_signature
+  - touches_a_file_with_open_S1_or_S2_bug
+
+# Where the G2 mutation gate applies at all (§5 G2). Entries starting with "!"
+# are exclusions and are applied after the inclusions.
+#
+# Presentation components are exempt deliberately: they generate overwhelmingly
+# equivalent mutants (className strings, conditional rendering), and an agent
+# chasing an unreachable score there burns its whole turn budget writing junk
+# DOM assertions. Exempt files are REPORTED in the Confidence Report's
+# `untested` list, never silently dropped.
+mutation_paths:
+  - "src/**/*.ts"
+  - "src/**/*.js"
+  - "src/**/*.py"
+  - "!src/**/*.tsx"
+  - "!src/**/*.jsx"
+  - "!src/generated/**"
+  - "!**/__mocks__/**"
+
+gates:
+  mutation_threshold: 0.60        # ratchet up monthly, never down (§5 G2)
+  mutation_wall_clock_seconds: 900
+  oracle_min_propositions:        # §5 G7
+    critical: 8
+    high: 5
+    medium: 3
+    low: 0
+  oracle_citation_rate_floor: 0.70   # below this, report confidence caps at MEDIUM
+  # §5 G6 caps a PR at $8, but §13 estimates a critical PR at $25-50. Applied
+  # literally, every critical PR aborts mid-route and reports LOW — the routing
+  # would be self-defeating. Budgets are therefore scaled by band, keeping $8 as
+  # the medium default the spec names. Re-baseline all of these from real
+  # measurements after Phase 3 (§13 says to expect 2-4x naive estimates).
+  pr_budget_usd: 8.00                # default / medium
+  pr_budget_usd_by_band:
+    low: 1.00
+    medium: 8.00
+    high: 25.00
+    critical: 50.00
+
+# §3.4 / §15 Q17: SHIP_WITH_WATCH is only honest if the org can actually watch
+# and roll back. Left false until a human confirms feature flags or staged
+# rollout exist. G7 rejects any report using the verdict while this is false.
+ship_with_watch_available: false
+
+# Agents allowed to run per band (§6.1). The router reads this.
+routing:
+  low:      [risk-scout]
+  medium:   [risk-scout, spec-oracle, unit-smith, release-marshal]
+  high:     [risk-scout, spec-oracle, unit-smith, flow-smith, release-marshal]
+  critical: [risk-scout, spec-oracle, unit-smith, flow-smith, prober, authz-prober, release-marshal]
