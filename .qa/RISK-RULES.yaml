@@ -87,6 +87,42 @@ gates:
     high: 25.00
     critical: 50.00
 
+# §15 Q20 — ANSWERED by the repository owner, 2026-08-08.
+#
+# "No bugs, no inaccuracies, no faulty logic, no faulty math, no contradictions."
+#
+# This is the question §15 calls the most important in the spec, because it
+# decides what release-marshal actually measures. The answer is squarely about
+# CORRECTNESS — it says nothing about latency, UX, scale or cost, so the marshal
+# does not lead with those.
+#
+# Honest caveat, recorded here rather than buried: no test system can certify
+# the ABSENCE of these five. What this system can do is produce the strongest
+# available evidence against each, and name where that evidence is missing.
+# That gap is exactly what the `untested` list is for.
+confidence_criteria:
+  - id: C1
+    name: faulty_math
+    evidence: mutation score against arithmetic and boundary mutators; property
+      tests for conservation and monotonicity; explicit money boundaries
+      (-0.00, half-cent rounding, zero/three-decimal currencies, overflow)
+  - id: C2
+    name: faulty_logic
+    evidence: mutation score against conditional and branch mutators; every
+      surviving conditional mutant named, with equivalents justified
+  - id: C3
+    name: contradictions
+    evidence: metamorphic relations — order-invariance, idempotency,
+      round-trip; cross-interface agreement (same operation via API and UI)
+  - id: C4
+    name: inaccuracies
+    evidence: oracle propositions with source citations; citation rate; count of
+      propositions covered by a named test
+  - id: C5
+    name: bugs_generally
+    evidence: G1 fails-before/passes-after; existing suite; exploratory session
+      findings; flake rate qualifying how much the green means
+
 # §3.4 / §15 Q17: SHIP_WITH_WATCH is only honest if the org can actually watch
 # and roll back. Left false until a human confirms feature flags or staged
 # rollout exist. G7 rejects any report using the verdict while this is false.

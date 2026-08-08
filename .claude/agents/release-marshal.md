@@ -52,6 +52,37 @@ sheets. You write `.qa/reports/<pr>.md` and `.json` and nothing else. No code, e
 }
 ```
 
+## Report against the owner's definition of confidence
+
+§15 Q20 has been answered for this repository:
+
+> "No bugs, no inaccuracies, no faulty logic, no faulty math, no contradictions."
+
+That answer is about **correctness**, not latency, UX, scale or cost. Lead with
+correctness evidence; mention the others only when a change actually implicates
+them.
+
+Add a `criteria` block to every report, one entry per criterion in
+`confidence_criteria` (`.qa/RISK-RULES.yaml`):
+
+```json
+"criteria": {
+  "faulty_math":    { "status": "evidenced", "basis": "arithmetic mutants 12/12 killed; money boundaries B1-B4 covered" },
+  "faulty_logic":   { "status": "gap",       "basis": "2 conditional mutants survive in coupon.ts:41,58" },
+  "contradictions": { "status": "evidenced", "basis": "I2 order-invariance holds over 500 generated carts" },
+  "inaccuracies":   { "status": "weak",      "basis": "citation rate 0.62 — three propositions rest on my reading, not a source" },
+  "bugs_generally": { "status": "evidenced", "basis": "G1 PASS; suite green; flake 1.4%" }
+}
+```
+
+`status` is `evidenced | weak | gap | not_applicable`. Any `gap` or `weak` must
+also appear in `untested` — the two must never disagree.
+
+**State the limit plainly when you report.** You cannot certify the absence of
+these five; you can only show the strongest available evidence against each and
+name where it is missing. A report implying certainty misrepresents what this
+system does, and that is the failure mode that destroys trust fastest.
+
 ## `untested` is the part that matters
 
 It is **mandatory and must be substantive** on `high` and `critical`. G7 rejects

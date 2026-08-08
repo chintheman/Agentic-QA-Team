@@ -165,7 +165,7 @@ bash .qa/selftest/run.sh               # prove the gates still work on the real 
 
 | # | Question | Answer |
 |---|---|---|
-| 17 | Feature flags / staged rollout? | **UNKNOWN — needs a human.** Until answered, `SHIP_WITH_WATCH` is disabled in `.qa/RISK-RULES.yaml` (`ship_with_watch_available: false`). §3.4 is explicit that offering it without real rollout machinery is a fiction, so the marshal is mechanically prevented from using it. |
+| 17 | Feature flags / staged rollout? | **UNKNOWN — needs a human. See §6 for what the question means.** Until answered, `SHIP_WITH_WATCH` is disabled in `.qa/RISK-RULES.yaml` (`ship_with_watch_available: false`). §3.4 is explicit that offering it without real rollout machinery is a fiction, so the marshal is mechanically prevented from using it. |
 | 18 | CI, fork PRs | GitHub Actions. Fork PRs: **skipped with a visible comment** (see D-005) rather than failing silently. |
 | 19 | Issue tracker readable; tickets rich enough? | **UNKNOWN — needs a human.** §17 is blunt that this sets the system's ceiling: thin tickets ⇒ a weak oracle ⇒ tests that drift back to encoding current behaviour. Flag it now, not in Phase 3. |
 
@@ -177,11 +177,19 @@ bash .qa/selftest/run.sh               # prove the gates still work on the real 
 Determines whether `SHIP_WITH_WATCH` is a real verdict or a comforting fiction.
 Currently disabled by config.
 
-**Q20 — What does "confidence when shipping" concretely mean here, and what was
-the last change that felt scary, and why?**
-§15 calls this the most important question in the document, and the only one a
-human must answer. It determines what `release-marshal` should actually measure.
-Until it is answered the marshal reports the generic evidence set, which is a
-reasonable default and *not* a substitute for the answer.
+**Q20 — ANSWERED (2026-08-08, repository owner).**
 
-Neither question blocks the build. Both block calibration.
+> "No bugs, no inaccuracies, no faulty logic, no faulty math, no contradictions."
+
+Decomposed into five measurable criteria in `.qa/RISK-RULES.yaml`
+(`confidence_criteria`), and `release-marshal` now reports a status and basis for
+each. The answer is purely about **correctness**, so the marshal leads with
+correctness evidence and does not foreground latency, UX, scale or cost.
+
+Recorded limitation: no test system can certify the *absence* of these five.
+The marshal produces the strongest available evidence against each and names
+where that evidence is missing. §17 already says this; the Q20 answer makes it
+load-bearing, so the marshal is instructed to state it explicitly rather than
+imply certainty.
+
+Q17 remains open. It blocks calibration, not the build.

@@ -14,6 +14,17 @@ A report saying "MEDIUM, these three paths are untested, here's why" is a
 success. A green checkmark with no reasoning is a failure even when the code is
 fine.
 
+### What "confident to ship" means here (§15 Q20, answered)
+
+> "No bugs, no inaccuracies, no faulty logic, no faulty math, no contradictions."
+
+Five criteria, tracked per PR in `.qa/RISK-RULES.yaml` → `confidence_criteria`:
+faulty math · faulty logic · contradictions · inaccuracies · bugs generally.
+
+This is a **correctness** definition. It says nothing about performance, UX or
+scale — so the marshal does not lead with those, and neither should the monthly
+review. If that changes, change it here first.
+
 ## Where we will not chase quality
 
 - **Presentation components** — exempt from the mutation gate. Mutants there are
@@ -35,11 +46,8 @@ fine.
 
 ## Open, and needing a human
 
-1. **Q17** — do feature flags or staged rollout exist? Until answered,
+1. **Q17** — do feature flags or staged rollout exist? (The only one left.) Until answered,
    `SHIP_WITH_WATCH` stays off and the marshal has only SHIP/HOLD.
-2. **Q20** — what does "confidence when shipping" concretely mean here? What was
-   the last change that felt scary, and why? §15 calls this the most important
-   question in the spec. It determines what the marshal should actually measure.
 3. **Ticket quality** — §17 is blunt that the system's ceiling is set by it. If
    tickets are one-liners the oracle will be weak, and that is a process problem
    no prompt can fix.
