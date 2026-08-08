@@ -36,11 +36,29 @@ Two questions still need a human, and neither was guessed: see
 
 ## Install into a target repository
 
+### Recommended: install it as a plugin, once
+
+```bash
+claude plugin marketplace add chintheman/Agentic-QA-Team
+claude plugin install agentic-qa-team@chintheman-qa
+```
+
+`/qa-init` and the rest are then available in **every** repository, with no
+files copied anywhere. Verify with `claude plugin details agentic-qa-team` —
+it should report 9 agents, 14 skills and 1 hook.
+
+The hook matters: it is the G5 guard. A plugin that shipped the agents without
+it would be the degraded mode this design exists to avoid — advice instead of
+gates.
+
+### Alternative: copy it into one repository
+
 ```bash
 cp -r .claude .qa scripts .github/workflows <target-repo>/
 ```
 
-Then open that repo in Claude Code and run:
+Use this when you want the gates, workflows and `.qa/` artifacts committed
+alongside the code they judge. Then open that repo in Claude Code and run:
 
 ```
 /qa-init
