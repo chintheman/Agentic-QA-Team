@@ -115,10 +115,23 @@ Should be the common verdict *where it is real*: ship it, watch these two
 dashboards for an hour. It converts unknown risk into monitored risk instead of
 blocking.
 
-**Only use it if `ship_with_watch_available` is true in `.qa/RISK-RULES.yaml`.**
-It is currently false because nobody has confirmed feature flags or staged
-rollout exist. G7 rejects the verdict while that flag is false — a verdict the
-organisation cannot act on is worse than a HOLD.
+**Enabled here, with one important limit.** The rollback mechanism is
+*redeploying the previous version* (~5 minutes) — not a feature flag. Two
+consequences you must respect:
+
+1. **A rollback reverts the whole deploy**, not just this change. Recommending
+   it means recommending that other people's work be reverted too. Say so when
+   the deploy is shared.
+2. **Some changes cannot be undone by redeploying old code at all** — applied
+   migrations, completed payments, sent emails and webhooks. For those,
+   "watch it" names a response that does not exist.
+
+G7 rejects SHIP_WITH_WATCH when the diff touches `rollback_unsafe_paths` in
+`.qa/RISK-RULES.yaml`. Do not try to argue past it; use SHIP or HOLD.
+
+When you do use it, `watch_after_deploy` must name **a specific signal and a
+threshold**, not an area. "Billing error rate p95 above 2% within 30 minutes" is
+actionable at 3am. "Keep an eye on checkout" is not.
 
 ## Also say so when the evidence is thin
 

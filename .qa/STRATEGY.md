@@ -42,9 +42,9 @@ review. If that changes, change it here first.
 | Phase 1 | complete (gates built and self-tested) |
 | Phases 2–5 | built; acceptance pending a real codebase |
 | Mutation threshold | 0.60 — ratchet monthly, never down |
-| `SHIP_WITH_WATCH` | **disabled** pending §15 Q17 |
+| `SHIP_WITH_WATCH` | **enabled**, gated on rollback-safe paths (§15 Q17: fast rollback, no flags) |
 
-## Open, and needing a human
+## Open
 
 1. **Q17** — do feature flags or staged rollout exist? (The only one left.) Until answered,
    `SHIP_WITH_WATCH` stays off and the marshal has only SHIP/HOLD.

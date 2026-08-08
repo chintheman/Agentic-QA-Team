@@ -21,4 +21,18 @@ jq -n '{verdict:"SHIP",untested:[],evidence:{oracle_propositions:3,propositions_
 if "$KIT/.qa/gates/g7-completeness.sh" marshal critical "$KIT/.qa/reports/${QA_PR}.json" >/dev/null 2>&1; then
   printf '  FAIL  G7 accepted an empty untested on a critical PR\n'; fails=$((fails+1))
 else printf '  ok    G7 rejects an empty untested list\n'; fi
+# SHIP_WITH_WATCH must be refused when a rollback cannot undo the change.
+mkdir -p "$KIT/.qa/risk"
+jq -n '{changed_files:["db/migrations/0042.sql"]}' > "$KIT/.qa/risk/${QA_PR}.json"
+jq -n '{verdict:"SHIP_WITH_WATCH",untested:["x"],evidence:{oracle_propositions:1,propositions_covered_by_tests:1}}' > "$KIT/.qa/reports/${QA_PR}.json"
+if "$KIT/.qa/gates/g7-completeness.sh" marshal high "$KIT/.qa/reports/${QA_PR}.json" >/dev/null 2>&1; then
+  printf '  FAIL  G7 allowed SHIP_WITH_WATCH on an irreversible migration\n'; fails=$((fails+1))
+else printf '  ok    G7 refuses SHIP_WITH_WATCH when rollback cannot undo it\n'; fi
+
+jq -n '{changed_files:["src/api/cart.ts"]}' > "$KIT/.qa/risk/${QA_PR}.json"
+if "$KIT/.qa/gates/g7-completeness.sh" marshal high "$KIT/.qa/reports/${QA_PR}.json" >/dev/null 2>&1; then
+  printf '  ok    G7 allows SHIP_WITH_WATCH on a rollback-safe change\n'
+else printf '  FAIL  G7 wrongly refused a rollback-safe SHIP_WITH_WATCH\n'; fails=$((fails+1)); fi
+rm -f "$KIT/.qa/risk/${QA_PR}.json"
+
 exit $fails

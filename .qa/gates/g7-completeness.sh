@@ -11,6 +11,7 @@ QA_GATE_NAME=g7
 . "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 qa_need jq
 MODE="${1:?oracle|marshal}"; BAND="${2:?band}"; FILE="${3:?file}"
+PR_FILES_SRC="$QA_ROOT/.qa/risk/${QA_PR:-local}.json"
 [[ -f "$FILE" ]] || qa_die "missing $FILE"
 
 RULES="$QA_ROOT/.qa/RISK-RULES.yaml"
@@ -80,6 +81,63 @@ fi
 if [[ "$verdict" == "SHIP_WITH_WATCH" && "$swa" != "true" ]]; then
   status=FAIL
   notes+=("SHIP_WITH_WATCH used but ship_with_watch_available is false — no rollout machinery is confirmed to exist (§15 Q17), so the verdict is unactionable")
+fi
+
+# SHIP_WITH_WATCH is only meaningful if the watcher can actually undo the change.
+# Here the mechanism is redeploying the previous version, which cannot reverse an
+# applied migration, a completed payment, or an email already sent. When the diff
+# touches one of those, "watch it" offers a response that does not exist.
+if [[ "$verdict" == "SHIP_WITH_WATCH" && "$swa" == "true" ]]; then
+  mapfile -t UNSAFE < <(python3 - "$QA_ROOT" "$PR_FILES_SRC" <<'PY2'
+import sys, os, re, subprocess
+try:
+    import yaml
+except ImportError:
+    sys.exit(0)
+root = sys.argv[1]
+d = yaml.safe_load(open(os.path.join(root, ".qa/RISK-RULES.yaml"))) or {}
+pats = ((d.get("rollback") or {}).get("rollback_unsafe_paths")) or []
+if not pats:
+    sys.exit(0)
+
+src = sys.argv[2] if len(sys.argv) > 2 else ""
+files = []
+if src and os.path.exists(src):
+    import json
+    try:
+        files = json.load(open(src)).get("changed_files", []) or []
+    except Exception:
+        files = []
+if not files:
+    base = os.environ.get("QA_BASE_REF", "origin/" + os.environ.get("QA_DEFAULT_BRANCH", "main"))
+    try:
+        mb = subprocess.run(["git", "merge-base", "HEAD", base], capture_output=True, text=True).stdout.strip()
+        if mb:
+            files = subprocess.run(["git", "diff", "--name-only", mb + "...HEAD"],
+                                   capture_output=True, text=True).stdout.split()
+    except Exception:
+        files = []
+
+def to_re(pat):
+    out, i = [], 0
+    while i < len(pat):
+        if pat.startswith("**/", i): out.append("(?:.*/)?"); i += 3
+        elif pat.startswith("**", i): out.append(".*"); i += 2
+        elif pat[i] == "*": out.append("[^/]*"); i += 1
+        elif pat[i] == "?": out.append("[^/]"); i += 1
+        else: out.append(re.escape(pat[i])); i += 1
+    return re.compile("^" + "".join(out) + "$")
+
+rx = [to_re(p) for p in pats]
+for f in files:
+    if any(r.match(f) for r in rx):
+        print(f)
+PY2
+)
+  if [[ ${#UNSAFE[@]} -gt 0 ]]; then
+    status=FAIL
+    notes+=("SHIP_WITH_WATCH used, but ${#UNSAFE[@]} changed file(s) cannot be undone by a rollback: ${UNSAFE[*]:0:5}. Redeploying old code does not revert an applied migration, recall a payment, or unsend an email. Use SHIP or HOLD.")
+  fi
 fi
 
 qa_log "$status"

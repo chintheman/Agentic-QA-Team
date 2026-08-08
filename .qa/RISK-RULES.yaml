@@ -123,10 +123,43 @@ confidence_criteria:
     evidence: G1 fails-before/passes-after; existing suite; exploratory session
       findings; flake rate qualifying how much the green means
 
-# §3.4 / §15 Q17: SHIP_WITH_WATCH is only honest if the org can actually watch
-# and roll back. Left false until a human confirms feature flags or staged
-# rollout exist. G7 rejects any report using the verdict while this is false.
-ship_with_watch_available: false
+# §3.4 / §15 Q17 — ANSWERED 2026-08-08: fast rollback (redeploy the previous
+# version in minutes). No feature flags, no staged rollout.
+#
+# SHIP_WITH_WATCH is therefore ENABLED, but rollback is a blunter instrument
+# than a flag and the verdict must not pretend otherwise:
+#
+#   * A feature flag disables ONE change. A rollback reverts EVERYTHING shipped
+#     since the last deploy, including other people's work.
+#   * "Minutes" is not "instantly". Damage accrues during the window.
+#   * Some changes cannot be undone by redeploying old code at all. Those are
+#     listed below, and for them SHIP_WITH_WATCH is a lie — the correct verdict
+#     is SHIP or HOLD.
+ship_with_watch_available: true
+
+rollback:
+  mechanism: redeploy_previous_version
+  typical_minutes: 5          # measure this and correct it; the guess is doing real work
+  granularity: whole_deploy   # not per-change — a rollback takes bystanders with it
+
+  # Changes a rollback CANNOT undo. G7 rejects SHIP_WITH_WATCH when the diff
+  # touches any of these, because rolling back a migration is frequently worse
+  # than the bug it was meant to escape.
+  rollback_unsafe_paths:
+    - "**/migrations/**"
+    - "**/migrate/**"
+    - "**/*_migration.*"
+    - "src/billing/**"        # money already moved does not un-move
+    - "src/payments/**"
+    - "**/backfill*"
+    - "**/seed_data/**"
+
+  # Prose reasons, surfaced by the marshal so a reviewer understands the refusal
+  # rather than just seeing a gate fail.
+  rollback_unsafe_reasons:
+    schema: "an applied migration is not reverted by redeploying old code; the old code may not even read the new schema"
+    money: "a charge, refund or payout already executed cannot be recalled by a deploy"
+    outbound: "emails, webhooks and notifications already sent cannot be unsent"
 
 # Agents allowed to run per band (§6.1). The router reads this.
 routing:
