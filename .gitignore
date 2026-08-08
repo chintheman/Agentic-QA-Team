@@ -29,3 +29,9 @@ coverage/
 # fighting its permissions. The local-session file is just noise from
 # interactive work and would bury that signal.
 .qa/metrics/violations/local.jsonl
+
+# Per-install recon output from /qa-init — regenerated on demand, and specific
+# to whichever repository the kit was installed into.
+.qa/INIT-REPORT.md
+.qa/init-report.json
+.qa/RISK-RULES.proposed.yaml

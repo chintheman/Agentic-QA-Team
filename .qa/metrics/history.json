@@ -2,6 +2,567 @@
   "generated": "2026-08-08",
   "window_days": 90,
   "history_truncated": false,
-  "files": {},
-  "recent_hotfix_paths": []
+  "files": {
+    ".claude/agents/authz-prober.md": {
+      "churn_90d": 43,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".claude/agents/flake-warden.md": {
+      "churn_90d": 53,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".claude/agents/flow-smith.md": {
+      "churn_90d": 45,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".claude/agents/patch-smith.md": {
+      "churn_90d": 68,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".claude/agents/prober.md": {
+      "churn_90d": 53,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".claude/agents/release-marshal.md": {
+      "churn_90d": 151,
+      "commits_90d": 3,
+      "hotfix_touches_365d": 1,
+      "open_bugs": [],
+      "last_incident": "2026-08-08T17:59:08+00:00"
+    },
+    ".claude/agents/risk-scout.md": {
+      "churn_90d": 70,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".claude/agents/spec-oracle.md": {
+      "churn_90d": 88,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".claude/agents/unit-smith.md": {
+      "churn_90d": 89,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".claude/commands/qa-fix.md": {
+      "churn_90d": 22,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".claude/commands/qa-flow.md": {
+      "churn_90d": 17,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".claude/commands/qa-oracle.md": {
+      "churn_90d": 18,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".claude/commands/qa-probe.md": {
+      "churn_90d": 16,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".claude/commands/qa-risk.md": {
+      "churn_90d": 14,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".claude/commands/qa-test.md": {
+      "churn_90d": 18,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".claude/commands/qa-verdict.md": {
+      "churn_90d": 13,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".claude/hooks/qa-guard.py": {
+      "churn_90d": 229,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".claude/hooks/qa-guard.sh": {
+      "churn_90d": 3,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".claude/hooks/qa-worktree-bootstrap.sh": {
+      "churn_90d": 27,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".claude/qa-ci-settings.json": {
+      "churn_90d": 30,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".claude/settings.json": {
+      "churn_90d": 27,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".claude/skills/qa-authz/SKILL.md": {
+      "churn_90d": 61,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".claude/skills/qa-charters/SKILL.md": {
+      "churn_90d": 56,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".claude/skills/qa-conventions/SKILL.md": {
+      "churn_90d": 63,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".claude/skills/qa-mutation/SKILL.md": {
+      "churn_90d": 58,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".claude/skills/qa-oracles/SKILL.md": {
+      "churn_90d": 56,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".claude/skills/qa-repro/SKILL.md": {
+      "churn_90d": 45,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".github/workflows/qa-history.yml": {
+      "churn_90d": 35,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".github/workflows/qa-nightly.yml": {
+      "churn_90d": 88,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".github/workflows/qa-pr.yml": {
+      "churn_90d": 264,
+      "commits_90d": 2,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".gitignore": {
+      "churn_90d": 31,
+      "commits_90d": 2,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".qa/DECISIONS.md": {
+      "churn_90d": 176,
+      "commits_90d": 2,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".qa/PROFILE.md": {
+      "churn_90d": 237,
+      "commits_90d": 3,
+      "hotfix_touches_365d": 1,
+      "open_bugs": [],
+      "last_incident": "2026-08-08T17:59:08+00:00"
+    },
+    ".qa/RISK-RULES.yaml": {
+      "churn_90d": 177,
+      "commits_90d": 3,
+      "hotfix_touches_365d": 1,
+      "open_bugs": [],
+      "last_incident": "2026-08-08T17:59:08+00:00"
+    },
+    ".qa/STRATEGY.md": {
+      "churn_90d": 75,
+      "commits_90d": 3,
+      "hotfix_touches_365d": 1,
+      "open_bugs": [],
+      "last_incident": "2026-08-08T17:59:08+00:00"
+    },
+    ".qa/adapters/README.md": {
+      "churn_90d": 71,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".qa/adapters/custom.sh.template": {
+      "churn_90d": 21,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".qa/adapters/detect.sh": {
+      "churn_90d": 22,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".qa/adapters/node-vitest.sh": {
+      "churn_90d": 79,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".qa/adapters/python-pytest.sh": {
+      "churn_90d": 64,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".qa/bugs/.gitkeep": {
+      "churn_90d": 1,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".qa/charters/backlog.md": {
+      "churn_90d": 23,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".qa/config.env": {
+      "churn_90d": 8,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".qa/disputes/.gitkeep": {
+      "churn_90d": 1,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".qa/fixtures/python/test_vacuity_cases.py": {
+      "churn_90d": 33,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".qa/gates/eslint-vacuity.cjs": {
+      "churn_90d": 31,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".qa/gates/g1-fails-before.sh": {
+      "churn_90d": 81,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".qa/gates/g2-mutation.sh": {
+      "churn_90d": 89,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".qa/gates/g3-vacuity.sh": {
+      "churn_90d": 34,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".qa/gates/g4-snapshot.sh": {
+      "churn_90d": 26,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".qa/gates/g6-budget.sh": {
+      "churn_90d": 65,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".qa/gates/g7-completeness.sh": {
+      "churn_90d": 148,
+      "commits_90d": 2,
+      "hotfix_touches_365d": 1,
+      "open_bugs": [],
+      "last_incident": "2026-08-08T17:59:08+00:00"
+    },
+    ".qa/gates/g8-route-coverage.sh": {
+      "churn_90d": 35,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".qa/gates/lib.sh": {
+      "churn_90d": 98,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".qa/gates/py_vacuity.py": {
+      "churn_90d": 96,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".qa/metrics/corpus.json": {
+      "churn_90d": 5,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".qa/metrics/cost/.gitkeep": {
+      "churn_90d": 1,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".qa/metrics/gates/.gitkeep": {
+      "churn_90d": 1,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".qa/metrics/history.json": {
+      "churn_90d": 7,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".qa/metrics/verdicts/.gitkeep": {
+      "churn_90d": 1,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".qa/metrics/violations/.gitkeep": {
+      "churn_90d": 1,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".qa/oracles/.gitkeep": {
+      "churn_90d": 1,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".qa/plans/.gitkeep": {
+      "churn_90d": 1,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".qa/policy.yaml": {
+      "churn_90d": 113,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".qa/probe/capability-probe.sh": {
+      "churn_90d": 402,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".qa/probe/probe-run.log": {
+      "churn_90d": 39,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".qa/probe/results.json": {
+      "churn_90d": 152,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".qa/reports/.gitkeep": {
+      "churn_90d": 1,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".qa/risk/.gitkeep": {
+      "churn_90d": 1,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".qa/selftest/g1-selftest.sh": {
+      "churn_90d": 75,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".qa/selftest/g3-selftest.sh": {
+      "churn_90d": 16,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".qa/selftest/g67-selftest.sh": {
+      "churn_90d": 38,
+      "commits_90d": 2,
+      "hotfix_touches_365d": 1,
+      "open_bugs": [],
+      "last_incident": "2026-08-08T17:59:08+00:00"
+    },
+    ".qa/selftest/guard-selftest.sh": {
+      "churn_90d": 80,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".qa/selftest/run.sh": {
+      "churn_90d": 28,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".qa/sessions/.gitkeep": {
+      "churn_90d": 1,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    "README.md": {
+      "churn_90d": 132,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    "scripts/qa-compact-metrics.py": {
+      "churn_90d": 55,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    "scripts/qa-history.py": {
+      "churn_90d": 120,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    "scripts/qa-orchestrate.sh": {
+      "churn_90d": 65,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    }
+  },
+  "recent_hotfix_paths": [
+    ".claude/agents/release-marshal.md",
+    ".qa/PROFILE.md",
+    ".qa/RISK-RULES.yaml",
+    ".qa/STRATEGY.md",
+    ".qa/gates/g7-completeness.sh",
+    ".qa/selftest/g67-selftest.sh"
+  ]
 }

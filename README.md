@@ -38,8 +38,27 @@ Two questions still need a human, and neither was guessed: see
 
 ```bash
 cp -r .claude .qa scripts .github/workflows <target-repo>/
-cd <target-repo>
+```
 
+Then open that repo in Claude Code and run:
+
+```
+/qa-init
+```
+
+That reads the repository, picks or writes a stack adapter, fills in the
+`qa-conventions` skill from real test files, proposes risk rules, re-runs the
+gate self-tests against your stack, and reports what works, what is blocked,
+and what still needs a human.
+
+It **proposes rather than imposes**: risk banding lands in
+`.qa/RISK-RULES.proposed.yaml` for review, because Phase 0 requires human
+sign-off before banding governs anything.
+
+<details>
+<summary>Manual equivalent, if you would rather do it by hand</summary>
+
+```bash
 .qa/adapters/detect.sh                    # pick or write an adapter
 .qa/probe/capability-probe.sh --live      # re-verify §11 on your CLI
 python3 scripts/qa-history.py             # build history.json from real history
@@ -47,7 +66,8 @@ bash .qa/selftest/run.sh                  # prove the gates work on your stack
 ```
 
 Then fill in `.claude/skills/qa-conventions/SKILL.md` and the placeholder globs
-in `.qa/RISK-RULES.yaml`, and have a human sign off on the banding rules.
+in the risk rules, and have a human sign off on the banding.
+</details>
 
 ## The team
 
@@ -86,6 +106,7 @@ nothing, get 100%.
 
 | Command | Does |
 |---|---|
+| `/qa-init` | **Start here.** One-shot setup: read the repo, wire it up, report what needs a human |
 | `/qa-risk` | Band uncommitted changes, print routing |
 | `/qa-oracle <issue>` | Oracle file from a ticket — **run before writing the code** |
 | `/qa-test <path>` | Full mutation loop on one file |

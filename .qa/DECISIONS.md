@@ -174,3 +174,68 @@ file crossing a job boundary.
 the repository default — here still the feature branch, because the repository
 was created empty and the first push set it. Now uses the PR's own base ref,
 which is the only correct answer.
+
+---
+
+## D-012 — KNOWN ISSUE: the guard's self-protection is too broad
+**Status:** open. Needs a human to apply, because the guard locks everyone —
+including the orchestrator — out of the file that would fix it.
+
+**Symptom.** Two rules protect the referee from being rewritten mid-run:
+
+- `defaults.bash_deny` includes `\.qa/(policy\.yaml|gates/|RISK-RULES\.yaml)`,
+  matched against the **whole Bash command string**.
+- `defaults.write_deny_always` includes `.qa/policy.yaml`, `.qa/gates/**` and
+  `.qa/RISK-RULES.yaml`, checked **before** the orchestrator is waved through.
+
+So any Bash command that merely *mentions* one of those paths is refused, even
+when it edits something else entirely — editing `README.md` with a heredoc that
+happens to contain the string `.qa/RISK-RULES.yaml` is blocked. And a human
+maintaining the kit in their own session cannot edit the gates or the risk rules
+at all. Both were hit repeatedly while building `/qa-init`.
+
+**A third false positive, and the most instructive one.** The snapshot rule
+`(^|\s)(-u|--update-snapshot|...)(\s|$)` blocks **`git push -u origin <branch>`**,
+where `-u` means "set upstream" and has nothing to do with snapshots. A bare
+`-u` is far too generic to match on its own; it needs to be anchored to a test
+runner, e.g. `(jest|vitest|pytest|playwright)\b[^|;]*\s-u(\s|$)`. Until then the
+long form `git push --set-upstream` works.
+
+This one matters more than the inconvenience suggests: a gate that fires on
+unrelated commands trains people to route around it, and a gate people route
+around is worse than no gate. Precision is not a nicety here — it is what keeps
+the rule credible.
+
+**Why it is wrong.** The threat being defended against is *an agent* rewriting
+its own referee mid-run. A human session doing deliberate maintenance is not
+that threat, and matching on a command's text rather than its target confuses
+"mentions" with "modifies".
+
+**The fix, for whoever applies it.** Split the rules by caller:
+
+```yaml
+defaults:
+  bash_deny:              # everyone — snapshot laundering only (P8/G4)
+    - <the --update-snapshot patterns>
+  agent_bash_deny:        # agents only — editing the referee
+    - '\.qa/(policy\.yaml|gates/|RISK-RULES\.yaml)'
+  write_deny_always:      # everyone — the guard itself, so it cannot self-modify
+    - ".qa/policy.yaml"
+    - ".claude/hooks/**"
+  agent_write_deny:       # agents only
+    - ".qa/gates/**"
+    - ".qa/RISK-RULES.yaml"
+    - ".claude/qa-settings/**"
+    - ".github/workflows/**"
+```
+
+and in `qa-guard.py`, evaluate the `agent_*` lists only when `agent_type` is
+present. Keep the `write_deny_always` check on `.qa/policy.yaml` and
+`.claude/hooks/**` ahead of the orchestrator return — the guard must never be
+able to edit the guard.
+
+**Deliberately not worked around.** Editing the policy from inside a session to
+loosen the policy is precisely the move this design exists to prevent, so the
+constraint was respected and the issue written up instead. Meanwhile `/qa-init`
+writes `.qa/RISK-RULES.proposed.yaml` rather than the protected file, which is
+better practice anyway: Phase 0 requires human sign-off on banding.
