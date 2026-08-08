@@ -138,3 +138,39 @@ critical route: it halted before `flow-smith` at $6.10 of $8.
 **Note:** the band caps are derived from §13's own placeholder estimates, so they
 inherit its uncertainty. §12 Phase 3 requires re-baselining from measurements;
 these numbers are the first thing that should change when real data exists.
+
+---
+
+## D-010 — An unconfigured QA workflow skips visibly instead of failing red
+**Spec:** §7.4 requires an explicit decision for the fork-PR case, but says
+nothing about the workflow simply not being configured.
+**Done:** A `preflight` job checks whether `ANTHROPIC_API_KEY` is set. If not,
+the agent jobs are skipped and a one-time PR comment says "QA not run (not
+configured)" with the setup steps.
+**Why:** Found by running the workflow against this PR — the secret was unset
+and the job failed red. A QA system that turns a PR red because *it* is not
+configured trains people to ignore its red, and §3.6 is explicit that the moment
+red CI becomes ignorable, every other part of this system stops producing
+anything. The absence of a report must be **visible** (§7.4's principle) without
+being **blocking**.
+**Note:** secrets are not readable in a job-level `if`, so the check runs in a
+step and is published as a job output.
+
+---
+
+## D-011 — Two real workflow bugs found by running it
+Both were mine, and both were the kind that fail quietly.
+
+**Inter-job artifact passing.** The `confidence` job checks out fresh, so
+`.qa/risk/<pr>.json` written by the `risk` job was never present. G6 reads the
+band from that file, so every budget check silently fell back to `medium` — on a
+critical PR that is a gate measuring the wrong thing while reporting success,
+which is exactly what P5 exists to prevent. Fixed by uploading/downloading the
+artifact **and** passing the band as `QA_BAND`, so the gate does not depend on a
+file crossing a job boundary.
+
+**Wrong default branch.** `QA_DEFAULT_BRANCH` used
+`github.event.repository.default_branch`, which is whatever branch happens to be
+the repository default — here still the feature branch, because the repository
+was created empty and the first push set it. Now uses the PR's own base ref,
+which is the only correct answer.
