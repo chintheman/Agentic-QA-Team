@@ -33,7 +33,12 @@ is the first run, picks the depth from the risk, runs the gates whose tooling
 exists, and gives you one verdict with the gaps named.
 
 There is no setup step. The session already has the repository cloned — that was
-never your job. Everything below is detail for when you want to look under it.
+never your job.
+
+📖 **[How it works](docs/HOW-IT-WORKS.md)** — the design, in plain language
+🚀 **[How to use it](docs/HOW-TO-USE.md)** — integrate, use, repeat
+
+Everything below is detail for when you want to look under it.
 
 ---
 
