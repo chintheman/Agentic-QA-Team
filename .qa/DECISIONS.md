@@ -239,3 +239,43 @@ loosen the policy is precisely the move this design exists to prevent, so the
 constraint was respected and the issue written up instead. Meanwhile `/qa-init`
 writes `.qa/RISK-RULES.proposed.yaml` rather than the protected file, which is
 better practice anyway: Phase 0 requires human sign-off on banding.
+
+**Escalated: the guard cannot repair itself.** A `/qa` run against a real
+repository found seven defects, and the guard blocked the fix for three of them.
+The immutability rule covers the orchestrator as well as agents, so the file
+that needs correcting is unreachable from any session. The corrected policy is
+staged at `.qa/policy.fixed.yaml` and must be applied **outside** a Claude Code
+session — a laptop shell or the GitHub web editor. Confirmed count of innocent
+commands blocked by the bare `-u` pattern: `git push -u`, `sort -u`,
+`pip install -U`, plus reading, grepping and *running* the gates.
+
+---
+
+## D-013 — Findings from the first real `/qa` run, and what they cost
+
+`/qa` was run against `sg-luxury-watch-index`. It reported the production code
+healthy and **the QA system broken**, with seven defects. All seven were real.
+Recorded here because the pattern matters more than the individual bugs.
+
+| # | Defect | Why it mattered |
+|---|---|---|
+| 1 | Bare `-u` in `bash_deny` | Blocked `git push -u`, `sort -u`, `pip install -U`, and reading/running the gates |
+| 2 | `qa_mutation` called `mutmut_normalise.py`, which was never written | The central gate could not run at all — zero evidence on "faulty math", the criterion the owner named first |
+| 3 | `RISK-RULES.yaml` shipped with demo globs (`src/billing/**`) | A repo with no `src/` got its real price-index engine banded `medium` |
+| 4 | `spec-oracle` `read_deny` covered only `src/`, `lib/`, `app/` | **Failed open.** In a repo using `index/`, `parser/`, `scraper/` the oracle could read the implementation while the report still claimed blindness — the exact P2 failure the agent exists to prevent |
+| 5 | Install step deleted `.qa/fixtures/` | Self-test permanently red in the target repo |
+| 6 | Orchestrator dispatched `/qa-<agent-name>` | `/qa-risk-scout` does not exist; 0 of 7 dispatches would have resolved |
+| 7 | PyYAML undeclared | Guard fails closed without it, so a clean checkout blocks every tool call |
+
+**#4 is the one to learn from.** A deny-list of source directories is only as
+good as its list of directory names, and every repo that names things
+differently silently loses the protection *while the report keeps asserting it*.
+It is now an allow-list: the oracle may read specifications and nothing else, so
+an unfamiliar layout is blind by default instead of readable by default.
+Fail-open defaults are worse than no defence, because they are indistinguishable
+from a working one until someone audits.
+
+**#2 and #6 share a shape** with the plugin-manifest bug in D-011: a component
+that validates, dispatches, or is referenced — and then does nothing. None of
+them fail loudly. All of them were found by *running the thing end to end and
+reading what actually happened*, never by inspection.

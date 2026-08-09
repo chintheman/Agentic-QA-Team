@@ -1,0 +1,7 @@
+# Dependencies the QA team itself needs.
+#
+# PyYAML is not optional: the guard hook fails CLOSED when it cannot read its
+# policy file, so on a clean checkout without PyYAML the guard blocks every tool
+# call. Failing closed is the right call for a security guard, but it makes the
+# dependency load-bearing rather than nice-to-have.
+PyYAML>=6.0

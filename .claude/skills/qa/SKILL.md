@@ -30,7 +30,11 @@ Check for `.qa/config.env`.
 - If `.qa/adapters/` is missing entirely, clone
   `https://github.com/chintheman/Agentic-QA-Team` to a temp directory outside
   the repo, copy in `.claude/`, `.qa/`, `scripts/` and `agents/`, and delete the
-  temp directory.
+  temp directory. **Copy the fixtures directory too** — the G3 self-test asserts
+  against those files, so an install that omits them leaves the self-test
+  permanently red for no real reason.
+- Ensure PyYAML is present (`pip install -r requirements-qa.txt`). The guard
+  fails closed without it, which blocks every tool call rather than degrading.
 - Run `bash scripts/qa-init.sh` and read `.qa/INIT-REPORT.md`.
 - Write `.qa/config.env` with the detected adapter. If the adapter is `custom`,
   write one from `.qa/adapters/custom.sh.template` — implement only what you can

@@ -1,0 +1,141 @@
+# CORRECTED separation-of-duties policy. Apply over .qa/policy.yaml.
+#
+#   cp .qa/policy.fixed.yaml .qa/policy.yaml
+#
+# Must be applied OUTSIDE a Claude Code session (your laptop, or the GitHub web
+# editor). The current guard makes .qa/policy.yaml immutable to every caller
+# including the orchestrator, so it cannot repair itself — which is exactly the
+# defect being fixed here.
+#
+# Fixes, from the QA report run against sg-luxury-watch-index:
+#   #1 the bare `-u` pattern blocked git push -u, sort -u, pip install -U, and
+#      reading/running the gates. Now anchored to test runners.
+#   #4 spec-oracle's blindness only covered src/ | lib/ | app/, so it could read
+#      index/, parser/ and scraper/. It FAILED OPEN — the one failure mode P2
+#      exists to prevent.
+
+defaults:
+  # Snapshot laundering (P8/G4). Every pattern is anchored to a TEST RUNNER.
+  #
+  # A bare `-u` was here originally and it was a disaster: it blocked
+  # `git push -u`, `sort -u` and `pip install -U`, none of which have anything
+  # to do with snapshots. A gate that fires on innocent commands trains people
+  # to route around it, and a gate people route around is worse than no gate.
+  bash_deny:
+    - '\b(jest|vitest)\b[^|;]*\s(-u|--update|--updateSnapshot)(\s|$)'
+    - '\bplaywright\b[^|;]*--update-snapshots'
+    - '\bpytest\b[^|;]*--snapshot-update'
+    - '\bcargo\s+insta\s+accept\b'
+    - '\bava\b[^|;]*--update-snapshots'
+
+  # Editing the referee is enforced on the tool's TARGET PATH, below. It is
+  # deliberately no longer a bash_deny text match: matching command text blocked
+  # reading, grepping and even *running* the gates — the one thing they exist for.
+  #
+  # Only the guard itself is immutable to everyone. The gates, risk rules and
+  # workflows are immutable to AGENTS but editable by the orchestrator, because
+  # a human maintaining the system is not the threat this rule defends against.
+  write_deny_always:
+    - ".qa/policy.yaml"
+    - ".claude/hooks/**"
+
+  agent_write_deny:
+    - ".qa/gates/**"
+    - ".qa/RISK-RULES.yaml"
+    - ".claude/qa-settings/**"
+    - ".github/workflows/**"
+
+agents:
+
+  risk-scout:
+    write_allow: [".qa/risk/**"]
+
+  spec-oracle:
+    write_allow: [".qa/oracles/**"]
+    # P2. The previous list only covered src/ | lib/ | app/, so in a repo that
+    # keeps code anywhere else — index/, parser/, scraper/ — the oracle could
+    # read the implementation freely. It failed OPEN, silently, which is worse
+    # than having no rule at all because the report still claimed blindness.
+    #
+    # Inverted to an ALLOW-LIST: the oracle may read specifications, and
+    # nothing else. A new source directory is then blind by default instead of
+    # readable by default.
+    read_allow:
+      - "README*"
+      - "docs/**"
+      - "doc/**"
+      - "**/*.md"
+      - "openapi.*"
+      - "swagger.*"
+      - "**/*.graphql"
+      - "**/schema.json"
+      - ".qa/oracles/**"
+      - ".qa/charters/**"
+    read_deny:
+      # Belt and braces for the obvious cases, in case read_allow is removed.
+      - "**/*.py"
+      - "**/*.ts"
+      - "**/*.tsx"
+      - "**/*.js"
+      - "**/*.jsx"
+      - "**/*.go"
+      - "**/*.rs"
+      - "**/*.java"
+      - "**/*.rb"
+      - "**/*.diff"
+      - "**/*.patch"
+      - ".qa/risk/**"
+      # ARCHITECTURE.md and METHODOLOGY.md are specifications, not
+      # implementation, so .md stays readable on purpose.
+    url_deny:
+      - "/pull/"
+      - "/commit/"
+      - "/compare/"
+      - ".diff"
+      - ".patch"
+      - "/blob/"
+      - "/raw/"
+    bash_deny:
+      - '^\s*git\s+(diff|show|log|blame)'
+      - '^\s*(cat|head|tail|sed|awk|less)\b'
+
+  prober:
+    write_allow: [".qa/sessions/**", ".qa/bugs/**", ".qa/charters/**", ".qa/artifacts/**"]
+
+  authz-prober:
+    write_allow: [".qa/authz-matrix.yaml", ".qa/bugs/**", ".qa/reports/authz-**"]
+
+  unit-smith:
+    write_allow: ["tests/**", "test/**", "**/*.test.*", "**/*.spec.*", "spec/**",
+                  ".qa/reports/unit-smith-**", ".qa/disputes/**"]
+
+  flow-smith:
+    write_allow: ["tests/**", "e2e/**", "**/*.spec.ts", ".qa/plans/**",
+                  ".qa/reports/flow-smith-**", ".qa/artifacts/**"]
+
+  # The load-bearing row: the agent that fixes code may not edit the test that
+  # judges the fix.
+  patch-smith:
+    write_allow: ["src/**", "lib/**", "app/**", "packages/*/src/**",
+                  # Repos that do not use src/. Without these, patch-smith
+                  # cannot write anything and will lobby to have the constraint
+                  # relaxed — §7.1's predicted failure.
+                  "index/**", "parser/**", "scraper/**", "core/**", "internal/**",
+                  "*.py", "*.ts", "*.js"]
+    write_deny:
+      - "tests/**"
+      - "test/**"
+      - "**/*.test.*"
+      - "**/*.spec.*"
+      - "**/conftest.py"
+      - ".qa/reports/**"
+    bash_deny:
+      - '^\s*git\s+(log|show|blame|fetch|pull)'
+      - '^\s*(curl|wget)\b'
+    url_deny: ["github.com", "gitlab.com", "stackoverflow.com"]
+
+  flake-warden:
+    write_allow: [".qa/flakes.json", ".qa/reports/nightly-**", ".qa/quarantine.yaml"]
+
+  release-marshal:
+    write_allow: [".qa/reports/**", ".qa/metrics/verdicts/**"]
