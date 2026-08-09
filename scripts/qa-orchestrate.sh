@@ -46,7 +46,23 @@ for agent in "${ROUTE[@]}"; do
   fi
 
   echo "  dispatching $agent ..."
-  out="$(claude -p "/qa-$agent $PR" \
+  # Agent names are NOT command names. Interpolating the agent directly
+  # produced "/qa-risk-scout", "/qa-spec-oracle", "/qa-unit-smith" — none of
+  # which exist, so every dispatch was a silent no-op. Map explicitly.
+  case "$agent" in
+    risk-scout)      cmd="/qa-risk" ;;
+    spec-oracle)     cmd="/qa-oracle" ;;
+    unit-smith)      cmd="/qa-test" ;;
+    flow-smith)      cmd="/qa-flow" ;;
+    prober)          cmd="/qa-probe" ;;
+    patch-smith)     cmd="/qa-fix" ;;
+    release-marshal) cmd="/qa-verdict" ;;
+    authz-prober)    cmd="Build or extend .qa/authz-matrix.yaml for this change, then run it." ;;
+    *) echo "  no command mapped for agent '$agent' — skipping rather than dispatching a command that does not exist" >&2
+       continue ;;
+  esac
+
+  out="$(claude -p "$cmd $PR" \
         --settings "$QA_ROOT/.claude/qa-ci-settings.json" \
         --agent "$agent" --permission-mode dontAsk \
         --output-format json 2>/dev/null)"
