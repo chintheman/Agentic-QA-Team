@@ -32,17 +32,71 @@ qa_test_ids()   {
   PYTHONPATH="${PYTHONPATH:-}:$PWD" qa_pytest -v -k "${pat% or }"
 }
 
+# Mutation testing with mutmut 3.
+#
+# mutmut 3's `run` subcommand takes only --max-children; there is no
+# --paths-to-mutate flag (that was mutmut 2). Source selection comes from
+# configuration, so the scope is written into setup.cfg for the duration of the
+# run and restored afterwards.
+#
+# Two caveats worth knowing before you trust a number from this:
+#
+#   * mutmut 3 copies the source into a mutants/ directory and runs the suite
+#     from there. A repository whose conftest.py manipulates sys.path relative
+#     to its own location can fail to import under mutation while passing
+#     normally. PYTHONPATH is exported to compensate; if collection still fails,
+#     that is a real integration problem and the gate should report
+#     MISCONFIGURED rather than a score.
+#   * mutmut has no per-file selection, so scoping is by DIRECTORY. When the
+#     changed files span directories the run is wider than the diff, which costs
+#     wall-clock and makes the G2 cap matter more.
 qa_mutation() {
+  command -v mutmut >/dev/null 2>&1 || {
+    echo "mutmut is not installed — the mutation gate cannot run. This is a" >&2
+    echo "misconfiguration, not a passing gate: install it or report G2 as" >&2
+    echo "unavailable in every Confidence Report." >&2
+    return 90
+  }
+
   local files=("$@")
-  # mutmut writes to its own cache; we ask for JUnit-ish results and normalise.
-  mutmut run --paths-to-mutate "$(IFS=,; echo "${files[*]}")" >&2 || true
-  mutmut results --all true 2>/dev/null | python3 "$QA_ROOT/.qa/gates/mutmut_normalise.py" > "$QA_MUTATION_JSON"
+  local dirs=() f d
+  for f in "${files[@]}"; do
+    d="$(dirname "$f")"
+    [[ "$d" == "." ]] && d="$f"          # top-level module: mutate the file itself
+    [[ " ${dirs[*]} " == *" $d "* ]] || dirs+=("$d")
+  done
+  [[ ${#dirs[@]} -gt 0 ]] || { echo "no mutation scope resolved" >&2; return 91; }
+
+  local backup="" had_cfg=0
+  if [[ -f setup.cfg ]]; then
+    had_cfg=1; backup="$(mktemp)"; cp setup.cfg "$backup"
+  fi
+  restore_cfg() {
+    if [[ "$had_cfg" -eq 1 ]]; then cp "$backup" setup.cfg; rm -f "$backup"
+    else rm -f setup.cfg; fi
+  }
+  trap restore_cfg RETURN
+
+  # `source_paths`; `paths_to_mutate` is accepted but deprecation-warns.
+  {
+    echo ""
+    echo "[mutmut]"
+    echo "source_paths=$(IFS=,; echo "${dirs[*]}")"
+  } >> setup.cfg
+
+  PYTHONPATH="${PYTHONPATH:-}:$PWD" mutmut run --max-children 4 >&2 || true
+  mutmut export-cicd-stats >/dev/null 2>&1 || true
+
+  mutmut results --all true 2>/dev/null \
+    | python3 "$QA_ROOT/.qa/gates/mutmut_normalise.py" > "$QA_MUTATION_JSON"
+  local rc=${PIPESTATUS[1]}
+  [[ $rc -eq 0 ]] || { echo "mutmut output could not be normalised (rc=$rc)" >&2; return "$rc"; }
 }
 
 qa_vacuity() { python3 "$QA_ROOT/.qa/gates/py_vacuity.py" "$@"; }
 
 qa_coverage() {
-  python3 -m pytest -q --cov --cov-report=json >/dev/null 2>&1 || true
+  PYTHONPATH="${PYTHONPATH:-}:$PWD" qa_pytest -q --cov --cov-report=json >/dev/null 2>&1 || true
   python3 -c "import json;print(json.load(open('coverage.json'))['totals']['percent_covered']/100)" 2>/dev/null || echo 0
 }
 
