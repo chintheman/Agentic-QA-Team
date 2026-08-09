@@ -35,6 +35,15 @@ exists, and gives you one verdict with the gaps named.
 There is no setup step. The session already has the repository cloned — that was
 never your job.
 
+### 👉 Installing it? Read **[docs/INSTALL.md](docs/INSTALL.md)** first
+
+It picks the right steps for your setup in one table — terminal, Claude app, CI,
+or just trying it. **No API key is needed** unless you want it to review pull
+requests automatically.
+
+*Agents installing this for someone: `docs/INSTALL.md` has a section written for
+you. Follow one scenario; do not improvise a different install.*
+
 📖 **[How it works](docs/HOW-IT-WORKS.md)** — the design, in plain language
 🚀 **[How to use it](docs/HOW-TO-USE.md)** — integrate, use, repeat
 
