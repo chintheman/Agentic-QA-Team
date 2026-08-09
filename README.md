@@ -18,6 +18,25 @@ statement of what was **not** tested.
 
 ---
 
+## Using it
+
+Open any repository in Claude Code and say:
+
+```
+/qa
+```
+
+or just *"QA this repo"*.
+
+That is the whole interface. It works out what changed, installs itself if this
+is the first run, picks the depth from the risk, runs the gates whose tooling
+exists, and gives you one verdict with the gaps named.
+
+There is no setup step. The session already has the repository cloned — that was
+never your job. Everything below is detail for when you want to look under it.
+
+---
+
 ## Status: this is the kit, not an instrumented repository
 
 This repository was empty at Phase 0 — no commits, no source, no stack. So the
@@ -124,7 +143,8 @@ nothing, get 100%.
 
 | Command | Does |
 |---|---|
-| `/qa-init` | **Start here.** One-shot setup: read the repo, wire it up, report what needs a human |
+| **`/qa`** | **Start here — the only one most people need.** Works out what changed, installs itself if needed, runs what's affordable, gives one verdict. Also triggers on "QA this repo" in plain language. |
+| `/qa-init` | Setup only, without running an audit. `/qa` does this for you on first run. |
 | `/qa-risk` | Band uncommitted changes, print routing |
 | `/qa-oracle <issue>` | Oracle file from a ticket — **run before writing the code** |
 | `/qa-test <path>` | Full mutation loop on one file |
