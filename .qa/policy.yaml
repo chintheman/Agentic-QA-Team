@@ -62,14 +62,18 @@ agents:
     write_allow: [".qa/oracles/**"]
     # P2 — the reason this agent exists as a separate process.
     #
-    # The previous version denied src/, lib/ and app/. A repository keeping
-    # code in index/, parser/ or scraper/ therefore let the oracle read the
-    # implementation freely, while the Confidence Report still asserted
-    # blindness. It failed OPEN, silently, which is worse than having no rule
-    # at all: indistinguishable from a working one until someone audits.
+    # Two deny-lists, because each one's blind spot is the other's coverage:
     #
-    # Now an allow-list — specifications only. An unfamiliar layout is blind by
-    # default instead of readable by default.
+    #   EXTENSIONS catch an unfamiliar layout. The original version listed only
+    #   src/, lib/ and app/, so a repository keeping code in index/ or parser/
+    #   let the oracle read the implementation while the report still asserted
+    #   blindness — fail-open, and indistinguishable from working until audited.
+    #
+    #   DIRECTORIES catch search arguments. A Grep or Glob is often given a
+    #   directory pattern ("src/**") rather than a filename, which no extension
+    #   pattern matches. Dropping these was a regression the self-test caught.
+    #
+    # Neither list alone is sufficient. Keep both.
     read_allow:
       - "README*"
       - "docs/**"
@@ -82,9 +86,7 @@ agents:
       - ".qa/oracles/**"
       - ".qa/charters/**"
     read_deny:
-      # By file extension, not by directory name, so a new source folder cannot
-      # quietly escape the rule. This is what actually enforces blindness until
-      # the guard learns read_allow.
+      # By extension — survives a layout this list has never seen.
       - "**/*.py"
       - "**/*.ts"
       - "**/*.tsx"
@@ -96,8 +98,22 @@ agents:
       - "**/*.rb"
       - "**/*.php"
       - "**/*.cs"
+      - "**/*.sql"
       - "**/*.diff"
       - "**/*.patch"
+      # By directory — catches Grep/Glob patterns, which name folders not files.
+      - "src/**"
+      - "lib/**"
+      - "app/**"
+      - "index/**"
+      - "parser/**"
+      - "scraper/**"
+      - "core/**"
+      - "internal/**"
+      - "packages/**"
+      - "tests/**"
+      - "test/**"
+      - "spec/**"
       - ".qa/risk/**"
       # Markdown stays readable on purpose: ARCHITECTURE.md and METHODOLOGY.md
       # are specifications, which is exactly what this agent is supposed to read.
