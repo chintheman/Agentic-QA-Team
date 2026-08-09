@@ -1,8 +1,22 @@
 {
-  "generated": "2026-08-08",
+  "generated": "2026-08-09",
   "window_days": 90,
   "history_truncated": false,
   "files": {
+    ".claude-plugin/marketplace.json": {
+      "churn_90d": 15,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".claude-plugin/plugin.json": {
+      "churn_90d": 22,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
     ".claude/agents/authz-prober.md": {
       "churn_90d": 43,
       "commits_90d": 1,
@@ -43,7 +57,7 @@
       "commits_90d": 3,
       "hotfix_touches_365d": 1,
       "open_bugs": [],
-      "last_incident": "2026-08-08T17:59:08+00:00"
+      "last_incident": "2026-08-08T17:59:08Z"
     },
     ".claude/agents/risk-scout.md": {
       "churn_90d": 70,
@@ -75,6 +89,13 @@
     },
     ".claude/commands/qa-flow.md": {
       "churn_90d": 17,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".claude/commands/qa-init.md": {
+      "churn_90d": 92,
       "commits_90d": 1,
       "hotfix_touches_365d": 0,
       "open_bugs": [],
@@ -214,15 +235,15 @@
       "last_incident": null
     },
     ".gitignore": {
-      "churn_90d": 31,
-      "commits_90d": 2,
+      "churn_90d": 37,
+      "commits_90d": 3,
       "hotfix_touches_365d": 0,
       "open_bugs": [],
       "last_incident": null
     },
     ".qa/DECISIONS.md": {
-      "churn_90d": 176,
-      "commits_90d": 2,
+      "churn_90d": 241,
+      "commits_90d": 3,
       "hotfix_touches_365d": 0,
       "open_bugs": [],
       "last_incident": null
@@ -232,21 +253,21 @@
       "commits_90d": 3,
       "hotfix_touches_365d": 1,
       "open_bugs": [],
-      "last_incident": "2026-08-08T17:59:08+00:00"
+      "last_incident": "2026-08-08T17:59:08Z"
     },
     ".qa/RISK-RULES.yaml": {
       "churn_90d": 177,
       "commits_90d": 3,
       "hotfix_touches_365d": 1,
       "open_bugs": [],
-      "last_incident": "2026-08-08T17:59:08+00:00"
+      "last_incident": "2026-08-08T17:59:08Z"
     },
     ".qa/STRATEGY.md": {
       "churn_90d": 75,
       "commits_90d": 3,
       "hotfix_touches_365d": 1,
       "open_bugs": [],
-      "last_incident": "2026-08-08T17:59:08+00:00"
+      "last_incident": "2026-08-08T17:59:08Z"
     },
     ".qa/adapters/README.md": {
       "churn_90d": 71,
@@ -365,7 +386,7 @@
       "commits_90d": 2,
       "hotfix_touches_365d": 1,
       "open_bugs": [],
-      "last_incident": "2026-08-08T17:59:08+00:00"
+      "last_incident": "2026-08-08T17:59:08Z"
     },
     ".qa/gates/g8-route-coverage.sh": {
       "churn_90d": 35,
@@ -410,8 +431,8 @@
       "last_incident": null
     },
     ".qa/metrics/history.json": {
-      "churn_90d": 7,
-      "commits_90d": 1,
+      "churn_90d": 572,
+      "commits_90d": 2,
       "hotfix_touches_365d": 0,
       "open_bugs": [],
       "last_incident": null
@@ -505,7 +526,7 @@
       "commits_90d": 2,
       "hotfix_touches_365d": 1,
       "open_bugs": [],
-      "last_incident": "2026-08-08T17:59:08+00:00"
+      "last_incident": "2026-08-08T17:59:08Z"
     },
     ".qa/selftest/guard-selftest.sh": {
       "churn_90d": 80,
@@ -515,8 +536,8 @@
       "last_incident": null
     },
     ".qa/selftest/run.sh": {
-      "churn_90d": 28,
-      "commits_90d": 1,
+      "churn_90d": 29,
+      "commits_90d": 2,
       "hotfix_touches_365d": 0,
       "open_bugs": [],
       "last_incident": null
@@ -529,7 +550,77 @@
       "last_incident": null
     },
     "README.md": {
-      "churn_90d": 132,
+      "churn_90d": 177,
+      "commits_90d": 3,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    "agents/authz-prober.md": {
+      "churn_90d": 43,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    "agents/flake-warden.md": {
+      "churn_90d": 53,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    "agents/flow-smith.md": {
+      "churn_90d": 45,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    "agents/patch-smith.md": {
+      "churn_90d": 68,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    "agents/prober.md": {
+      "churn_90d": 53,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    "agents/release-marshal.md": {
+      "churn_90d": 143,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    "agents/risk-scout.md": {
+      "churn_90d": 70,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    "agents/spec-oracle.md": {
+      "churn_90d": 88,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    "agents/unit-smith.md": {
+      "churn_90d": 89,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    "docs/agents-directory.md": {
+      "churn_90d": 30,
       "commits_90d": 1,
       "hotfix_touches_365d": 0,
       "open_bugs": [],
@@ -549,8 +640,22 @@
       "open_bugs": [],
       "last_incident": null
     },
+    "scripts/qa-init.sh": {
+      "churn_90d": 175,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
     "scripts/qa-orchestrate.sh": {
       "churn_90d": 65,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    "scripts/qa-sync-agents.sh": {
+      "churn_90d": 32,
       "commits_90d": 1,
       "hotfix_touches_365d": 0,
       "open_bugs": [],
