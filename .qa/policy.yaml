@@ -15,6 +15,13 @@
 #   url_deny     — substrings that, if present in a WebFetch URL, are blocked.
 #   bash_deny    — regexes matched against the full Bash command.
 #
+# LIMITATION, stated rather than implied: write rules are enforced on Write,
+# Edit and NotebookEdit. A Bash command is none of those, so a shell redirection
+# can write a file the write rules would refuse. The bash_deny lists below close
+# the obvious spellings, but intercepting arbitrary shell is heuristic and
+# cannot be complete. The durable defence is that G1 and G3 re-check in CI,
+# where the shell that produced a file has no vote.
+#
 # An agent_type absent from this file is DENIED any write. Fail closed: an
 # unknown agent is an unreviewed agent.
 
@@ -150,6 +157,13 @@ agents:
   # agent writes test -> test fails -> same agent "fixes" it by loosening the
   # assertion. patch-smith cannot touch a test at all.
   patch-smith:
+    # The write rules below are enforced on Write/Edit/NotebookEdit. They do NOT
+    # see a shell redirection, so `echo ... > tests/x.py` bypassed them entirely
+    # until the bash_deny patterns were added. Interception of arbitrary shell is
+    # heuristic — a determined agent can always find another spelling — so this
+    # closes the obvious routes rather than claiming completeness. The durable
+    # defence is that G1 and G3 re-check in CI, where the shell that wrote the
+    # file has no vote.
     write_allow: ["src/**", "lib/**", "app/**", "packages/*/src/**",
                   # Repos that do not use src/. Without these patch-smith can
                   # write nothing, and an agent that cannot do its job lobbies
@@ -163,10 +177,17 @@ agents:
       - "**/*.spec.*"
       - "**/conftest.py"
       - ".qa/reports/**"
-    # P7: no retrieving the answer. No history mining, no upstream lookup.
     bash_deny:
+      # P7: no retrieving the answer. No history mining, no upstream lookup.
       - '^\s*git\s+(log|show|blame|fetch|pull)'
       - '^\s*(curl|wget)\b'
+      # P4 via the shell: writing a test file without using a write tool.
+      - '>\s*[^|;&]*\b(tests?|spec)/'
+      - '\b(tee|cp|mv|install)\b[^|;&]*\b(tests?|spec)/'
+      - '\bsed\b[^|;&]*-i[^|;&]*\b(tests?|spec)/'
+      - '>\s*[^|;&]*\.(test|spec)\.[jt]sx?\b'
+      - '>\s*[^|;&]*\b(test_[^ ]*|conftest)\.py\b'
+      - '\bpython3?\b[^|;&]*-c[^|;&]*\b(tests?|spec)/'
     url_deny: ["github.com", "gitlab.com", "stackoverflow.com"]
 
   # --- Build cop ------------------------------------------------------------
