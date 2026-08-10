@@ -55,6 +55,12 @@ check "patch-smith Bash git log"              BLOCK "$(b patch-smith 'git log -2
 check "patch-smith Bash curl"                 BLOCK "$(b patch-smith 'curl https://x.dev')"
 check "patch-smith Bash pytest"               ALLOW "$(b patch-smith 'pytest -q')"
 
+echo "-- P4 via the shell: write rules only see write TOOLS --"
+check "patch-smith  echo > tests/x.py"        BLOCK "$(b patch-smith 'echo assert True > tests/test_sneak.py')"
+check "patch-smith  tee tests/x.py"           BLOCK "$(b patch-smith 'echo x | tee tests/test_sneak.py')"
+check "patch-smith  sed -i tests/x.py"        BLOCK "$(b patch-smith 'sed -i s/a/b/ tests/test_a.py')"
+check "patch-smith  runs the suite"           ALLOW "$(b patch-smith 'python3 -m pytest tests/ -q')"
+
 echo "-- G4/P8: snapshot laundering denied for everyone --"
 check "unit-smith  vitest -u"                 BLOCK "$(b unit-smith 'npx vitest run -u')"
 check "unit-smith  pytest --snapshot-update"  BLOCK "$(b unit-smith 'pytest --snapshot-update')"
