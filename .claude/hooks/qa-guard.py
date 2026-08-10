@@ -98,13 +98,38 @@ def main() -> int:
     repo = Path(os.environ.get("CLAUDE_PROJECT_DIR") or payload.get("cwd") or ".").resolve()
 
     policy_path = repo / ".qa" / "policy.yaml"
+
+    # A repository with no policy file has not opted into this system, and the
+    # guard has no business in it. ALLOW.
+    #
+    # This distinction is not pedantry. Installed as a plugin, the hook runs in
+    # EVERY repository the user opens, including ones that never asked for QA.
+    # Failing closed on a missing policy therefore blocked every tool call in
+    # every project on the machine — Read, Write, Grep, Bash, all of it. An
+    # install that bricks unrelated work is not a safe default; it is the worst
+    # possible one, and it was found by someone trying to install this cleanly.
+    if not policy_path.exists():
+        return ALLOW
+
+    # Fail CLOSED only when a policy exists and cannot be read. Here the repo HAS
+    # opted in, so an unreadable policy means the referee is broken in a repo
+    # that expects a referee — quite different from a repo that never wanted one.
     try:
         import yaml
         policy = yaml.safe_load(policy_path.read_text(encoding="utf-8")) or {}
-    except Exception as exc:  # missing file, bad YAML, no PyYAML
+    except ImportError:
         die_block(
-            f"cannot load {policy_path} ({exc}). Refusing the call: an "
-            "unreadable policy must fail closed, not open."
+            "PyYAML is required to read .qa/policy.yaml and is not installed.\n"
+            "  pip install pyyaml\n"
+            "  # externally-managed environment (Homebrew, Debian):\n"
+            "  python3 -m pip install --user --break-system-packages pyyaml\n"
+            "Refusing the call: this repository has a policy, so it expects the "
+            "guard to be enforcing it."
+        )
+    except Exception as exc:
+        die_block(
+            f"cannot parse {policy_path} ({exc}). Refusing the call: a policy "
+            "that exists but cannot be read must fail closed, not open."
         )
 
     agent = payload.get("agent_type")           # absent => main session

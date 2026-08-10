@@ -38,7 +38,7 @@ them. Check it landed:
 
 ```bash
 claude plugin details agentic-qa-team
-# expect: 9 agents, 14 skills, 1 hook
+# expect: 9 agents, and Hooks (1) — the count that matters
 ```
 
 **That hook is the guard.** A plugin with the agents but not the hook is the

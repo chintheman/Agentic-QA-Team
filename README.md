@@ -78,7 +78,9 @@ claude plugin install agentic-qa-team@chintheman-qa
 
 `/qa-init` and the rest are then available in **every** repository, with no
 files copied anywhere. Verify with `claude plugin details agentic-qa-team` —
-it should report 9 agents, 14 skills and 1 hook.
+it should report 9 agents and, critically, `Hooks (1)`. Skill and command
+counts change as the kit grows — compare against what the command prints, not a
+number written here.
 
 The hook matters: it is the G5 guard. A plugin that shipped the agents without
 it would be the degraded mode this design exists to avoid — advice instead of

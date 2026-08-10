@@ -23,6 +23,31 @@
 interactive use. A key is only for D, where a GitHub runner — which is not
 signed in as you — has to run the checks unattended.
 
+### Before anything else: PyYAML
+
+The guard reads its policy with PyYAML. Install it first:
+
+```bash
+pip install pyyaml
+```
+
+On a **Homebrew or Debian python** you will get
+`error: externally-managed-environment` (PEP 668). Use the user-site form, which
+writes to your home directory and leaves the managed prefix alone:
+
+```bash
+python3 -m pip install --user --break-system-packages pyyaml
+python3 -c "import yaml; print('ok', yaml.__version__)"
+```
+
+The `--break-system-packages` flag reads alarmingly; paired with `--user` it
+does not touch system packages at all.
+
+Without PyYAML the guard cannot read the policy of a repository that *has* one,
+and refuses tool calls there — correctly, since that repo expects enforcement.
+Repositories with no `.qa/policy.yaml` are unaffected: the guard treats them as
+not having opted in and stays out of the way.
+
 ---
 
 ## A — Terminal: install once, works everywhere
@@ -38,7 +63,9 @@ Verify:
 claude plugin details agentic-qa-team
 ```
 
-Expect **9 agents, 14 skills, 1 hook**.
+Expect **9 agents and — critically — `Hooks (1)`**. Skill and command
+counts change as the kit grows, so compare against what the command prints
+rather than a number written down here.
 
 > ⚠️ If it says `Hooks (0)`, stop. That hook is the enforcement layer. Without it
 > you have agents giving advice instead of agents behind gates — which is the

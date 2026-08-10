@@ -68,11 +68,23 @@ check "unknown agent bash"                    BLOCK "$(b rogue-agent 'ls')"
 check "orchestrator write src (no agent_type)" ALLOW "$(jq -nc '{tool_name:"Write",tool_input:{file_path:"src/x.py"}}')"
 check "escape via absolute path"              BLOCK "$(w unit-smith /etc/passwd)"
 
-echo "-- A guard that cannot read its policy must fail closed --"
+echo "-- Opted out vs opted in, when the policy cannot be read --"
+# A repo with NO policy has not opted into this system. Installed as a plugin the
+# hook runs in EVERY repo the user opens, so blocking here bricked every project
+# on the machine — including ones that never asked for QA.
 EMPTY="$(mktemp -d)"; mkdir -p "$EMPTY/.qa"
 CLAUDE_PROJECT_DIR="$EMPTY" python3 "$GUARD" >/dev/null 2>&1 <<<"$(w unit-smith tests/a.py)"
-rc=$?; total=$((total+1)); if [[ $rc -ne 0 ]]; then printf '  ok    %-52s BLOCK\n' "missing policy.yaml"; else
-  printf '  FAIL  %-52s expected BLOCK\n' "missing policy.yaml"; fails=$((fails+1)); fi
+rc=$?; total=$((total+1))
+if [[ $rc -eq 0 ]]; then printf '  ok    %-52s ALLOW\n' "no policy at all (repo never opted in)"
+else printf '  FAIL  %-52s expected ALLOW — this bricks unrelated repos\n' "no policy at all"; fails=$((fails+1)); fi
+
+# A repo WITH a policy that cannot be parsed is a different situation: it expects
+# a referee and the referee is broken. Fail closed.
+printf 'this: is: not: valid: yaml: [\n' > "$EMPTY/.qa/policy.yaml"
+CLAUDE_PROJECT_DIR="$EMPTY" python3 "$GUARD" >/dev/null 2>&1 <<<"$(w unit-smith tests/a.py)"
+rc=$?; total=$((total+1))
+if [[ $rc -ne 0 ]]; then printf '  ok    %-52s BLOCK\n' "policy present but unparseable"
+else printf '  FAIL  %-52s expected BLOCK\n' "policy present but unparseable"; fails=$((fails+1)); fi
 rm -rf "$EMPTY"
 
 echo
