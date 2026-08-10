@@ -30,23 +30,71 @@ get a confident assistant that agrees with your bugs.
 
 **`spec-oracle` is never allowed to read your code.**
 
-That sounds broken. It's the entire point.
+That sounds broken — as though the system is reviewing your work without looking
+at it. It isn't. This is the most common misreading of the design, so it is
+worth being precise.
+
+### Exactly one of the nine agents is blind
+
+| Agent | Reads your code? |
+|---|---|
+| `spec-oracle` | **no** |
+| `unit-smith` | yes |
+| `patch-smith` | yes |
+| `risk-scout` | yes — the diff |
+| the mutation gate | yes — it *edits* your code and reruns the suite |
+
+Everything that evaluates anything has full sight. What is blind is only the
+**standard being measured against**.
+
+### It's an exam, not a review
+
+Think of marking a test paper.
+
+**The person writing the answer key must not see the student's answers.** If they
+do, the answer key quietly becomes "whatever the student wrote," and marking
+becomes a formality that can never fail anyone.
+
+**The person marking the paper sees everything.**
+
+- `spec-oracle` writes the answer key — from your ticket, README, `docs/`, the
+  API schema. It never judges, scores or approves anything.
+- `unit-smith` marks the paper — and it can see every line.
+
+### Why the separation is what makes it rigorous
 
 An LLM that reads your implementation writes tests that *agree* with your
-implementation — bugs included. You end up with a green suite that has quietly
+implementation, bugs included. You end up with a green suite that has quietly
 certified the defect. Measured: assertions generated from requirements match the
 *intended* behaviour at macro-F1 0.82, but match the actual buggy behaviour at
 0.75. Show the model the code and it converges on the code.
 
-So the oracle reads only the ticket, the README, `docs/`, the API schema. It
-writes down what *should* happen. Then `unit-smith` — which *can* see the code —
-checks whether it does.
+If a single agent both defines "correct" and checks "correct," those two
+collapse into each other and you have built a mirror. A mirror cannot disagree
+with you, and disagreement is the only way a test ever finds anything.
 
-> The gap between those two is where real bugs live.
+> The oracle is blind so it can say what *should* happen.
+> Everything else has full sight, so it can say what *does*.
+> **The gap between them is the entire product.**
 
-This is enforced by a hook, not by asking nicely. It covers `Read`, `Grep`,
+### The real limitation, which is a different one
+
+Blind means the oracle knows only what you wrote down. **A vague ticket produces
+a vague answer key**, and thin propositions produce weak tests. That ceiling is
+real and no prompt removes it — it is why `/qa-oracle` is worth running on a
+ticket *before* the code exists, while ambiguity is still cheap to fix.
+
+### Enforced, not requested
+
+This is a hook, not an instruction in a prompt. It covers `Read`, `Grep`,
 `Glob`, `WebFetch` and `Bash`, because blocking `Read` alone leaves four ways
 around it — including fetching your own PR diff from a URL.
+
+The deny-list carries both file extensions **and** directory names. Extensions
+catch a repo laid out in a way the list has never seen; directories catch `Grep`
+and `Glob` arguments, which name folders rather than files. An earlier version
+had only directories and failed open in any repo without a `src/` — silently,
+while the report still claimed blindness.
 
 ---
 
