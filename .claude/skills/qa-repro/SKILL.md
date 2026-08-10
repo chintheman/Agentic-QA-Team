@@ -37,9 +37,17 @@ say plainly that it was misfiled as flake.
 
 ## Writing it up
 
-Fill `.qa/bugs/<id>.md` completely. Keep **severity** (technical damage) and
-**priority** (business urgency) independent — they answer different questions,
-and collapsing them is how a data-corruption bug ends up behind a UI nit.
+Copy `.qa/bugs/_TEMPLATE.md` and fill it completely.
+
+**`status:` is required.** `scripts/qa-history.py` harvests these files into the
+risk banding, and a bug with no status is counted as **open forever** — it can
+never close. That is deliberate, so an incomplete write-up cannot quietly drop a
+finding, but it means a file you never update becomes permanent noise. Set
+`status: fixed` when it is fixed.
+
+Keep **severity** (technical damage) and **priority** (business urgency)
+independent — they answer different questions, and collapsing them is how a
+data-corruption bug ends up behind a UI nit.
 
 `expected` must cite an oracle proposition ID where one exists. A bug report
 whose "expected" is only the reporter's opinion is an argument, not a defect.

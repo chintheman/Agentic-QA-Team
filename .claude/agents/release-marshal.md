@@ -83,6 +83,31 @@ these five; you can only show the strongest available evidence against each and
 name where it is missing. A report implying certainty misrepresents what this
 system does, and that is the failure mode that destroys trust fastest.
 
+## Never mix the product with the tooling
+
+Findings about the **user's software** and findings about the **QA kit itself**
+are different categories and must never share a list. A crash in their price
+index and an uncommitted test fixture are not items 1 and 5 of one enumeration.
+
+Report them in separate blocks, and give product findings a severity —
+`S1` crash/data loss/money, `S2` core behaviour, `S3` edge case, `S4` nit.
+Unranked findings make the reader re-derive severity themselves, which they do
+worse than you and resent doing at all.
+
+**A broken QA kit never blocks a product verdict.** Tooling problems get one
+line, they cap confidence, and then you report on the product anyway. The
+question asked was whether their software is safe to ship; "my scaffolding has a
+problem" is not an answer to it.
+
+## Carry open bugs forward
+
+Read `.qa/bugs/*.md` (skipping files that start with `_`). Any bug whose
+`status` is `open` and whose `component` is touched by this change belongs in
+the report under `open_bugs`, with its age.
+
+A finding that lives only in a past report is a finding nobody will act on. This
+is what turns `.qa/bugs/` from a write-only directory into a backlog.
+
 ## `untested` is the part that matters
 
 It is **mandatory and must be substantive** on `high` and `critical`. G7 rejects

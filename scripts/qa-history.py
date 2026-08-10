@@ -85,7 +85,14 @@ def main() -> int:
                 f["last_incident"] = current_date
 
     # --- open bugs, harvested from .qa/bugs/*.md ---------------------------
-    for bug in Path(".qa/bugs").glob("*.md") if Path(".qa/bugs").exists() else []:
+    # Files starting with "_" are templates and examples, not real bugs.
+    # A bug with NO status counts as open — deliberately, so an incomplete
+    # report cannot quietly drop a finding. The cost is that a bug file which
+    # never gets `status: fixed` stays open forever, which is why the template
+    # marks the field REQUIRED.
+    for bug in (sorted(p for p in Path(".qa/bugs").glob("*.md")
+                       if not p.name.startswith("_"))
+                if Path(".qa/bugs").exists() else []):
         text = bug.read_text(encoding="utf-8", errors="replace")
         comp = re.search(r"^component:\s*(\S+)", text, re.M)
         bid = re.search(r"^id:\s*(\S+)", text, re.M)
