@@ -7,9 +7,11 @@ description: QA this repository end to end and give a ship/hold verdict with evi
 
 The user wants one thing: **is this safe to ship, and what's wrong with it?**
 
-Do the whole job. **Never ask a setup question.** Never tell them to run
-something first. Never make them choose a mode. If something is missing, either
-fix it silently or work around it and mention it once at the end.
+Do the job end to end **within the bounds in step 5** — "the whole job" is not
+the same as "until you run out of things to say." **Never ask a setup question.**
+Never tell them to run something first. Never make them choose a mode. If
+something is missing, either fix it silently or work around it and mention it
+once at the end.
 
 If the user gave an argument (a path, a ticket, "the billing change"), scope to
 that. Otherwise scope it yourself, using step 2.
@@ -97,37 +99,93 @@ the user needs that number to read the green correctly.
 
 ---
 
-## 5. One report, in plain language
+## 5. Know when to stop
+
+Decide the bound **before** you start, and say it in the report.
+
+| Band | Stop after |
+|---|---|
+| low | the suite result |
+| medium | 5 product findings, or the gates completing |
+| high | 8 product findings |
+| critical | 12 product findings |
+
+Also stop when the band's `pr_budget_usd_by_band` is reached. That budget is
+real even when nobody is running `scripts/qa-orchestrate.sh` — the gate exists
+in the orchestrator, but the *limit* is yours to honour whether or not that code
+path executes. A cap that only fires on a route nobody takes is not a cap.
+
+When you stop early, **say so and say why**: "stopped at 8 findings (high band);
+`parser/` not examined." An honest boundary is information. Continuing until you
+run out of things to say is not thoroughness — it buries the first finding under
+the eleventh, and the first one was the one that mattered.
+
+**Never pad to look thorough.** Three real findings beat twelve manufactured
+ones, and the twelfth costs the reader their attention for all of them.
+
+---
+
+## 6. One report — and the product comes first
 
 Lead with the answer. No preamble, no method description.
 
+**The single most important rule in this file:** your findings about the
+*product* and your findings about the *QA tooling itself* are different
+categories and must never share a list. A crash in the user's price index and an
+uncommitted test fixture are not items 1 and 5 of the same enumeration. One is
+their software being wrong. The other is scaffolding.
+
 ```
 VERDICT: SHIP / SHIP_WITH_WATCH / HOLD     confidence: HIGH / MEDIUM / LOW
+Scope: 3 changed files in index/ (band: critical) · stopped at gates complete
 
-Scope: 3 changed files in index/ (band: critical)
+YOUR CODE                          ← the only section that gates shipping
+  S1  index_engine crashes on a single-date corpus       index_engine.py:142
+  S3  100% coupon yields -0.00 rather than 0.00          coupon.ts:88
 
-What I checked
-  Suite         115 passed, 44 skipped (28% of the suite never ran)
-  Vacuity       clean
-  Mutation      0.71 on 3 files — above the 0.60 gate
-  Untested      2 of 7 behaviours have no test
+QA TOOLING                         ← one line. Never a findings list.
+  self-tests green · mutation 0.68 · 2 gates unavailable (no mutmut)
 
-What's wrong
-  1. <the most important thing, in one sentence, with file:line>
-  2. ...
+OPEN, NOT FIXED                    ← carried forward from .qa/bugs/
+  BUG-041  S3  model card with no variants        open, 3 days
 
-What I could NOT check
-  - <every gap, named. Never leave this empty on a high-risk change.>
+WHAT I COULD NOT CHECK
+  - 44 tests skip on a clean checkout (28% of the suite never ran)
+  - web/ is TypeScript; no mutation tool configured
 
-Next
+NEXT
   <one concrete action>
 ```
 
-Rules for the report:
+### Severity, on product findings only
 
-- **`What I could NOT check` is mandatory** on high and critical. If you cannot
-  name what you did not test, you were not thinking. Absent tooling, skipped
-  tests, unspecified behaviour, exempt files — all belong here.
+| | Meaning |
+|---|---|
+| **S1** | Crash, data loss, wrong money, security |
+| **S2** | Core behaviour wrong for real inputs |
+| **S3** | Wrong in an edge case, or user-visible but cosmetic |
+| **S4** | Nit |
+
+Unranked findings force the reader to re-derive severity themselves, which they
+will do worse than you and resent doing at all.
+
+### The hard rule about tooling
+
+**A broken QA kit never blocks a product verdict.**
+
+If a gate is unavailable, a fixture is missing, or a self-test is red: that is
+**one line** under QA TOOLING, it caps confidence, and then you report on the
+product anyway. The user asked whether their software is safe to ship. "My
+scaffolding has a problem" is not an answer to that question.
+
+If the tooling is broken so badly that you learned nothing about the product,
+say exactly that in one sentence — do not fill the space with tooling findings
+to look productive.
+
+### Other rules
+
+- **`WHAT I COULD NOT CHECK` is mandatory** on high and critical. If you cannot
+  name what you did not test, you were not thinking.
 - **`SHIP_WITH_WATCH` only if `ship_with_watch_available` is true**, and never
   when the change touches `rollback_unsafe_paths` — a migration or a published
   figure cannot be undone by redeploying old code, so "watch it" would name a
@@ -136,6 +194,21 @@ Rules for the report:
   → MEDIUM at best. Suite red → LOW.
 - Write for someone deciding at 5pm on a Friday. "Billing error rate above 2%
   within 30 minutes" is actionable; "keep an eye on checkout" is not.
+
+---
+
+## 7. Anything worth keeping goes in `.qa/bugs/`
+
+A finding that exists only in your report dies with the conversation.
+
+For every **S1 or S2** you do not fix in this run, write `.qa/bugs/<id>.md` with
+`status: open`. That file is read by `scripts/qa-history.py` and feeds the risk
+banding, and it is what lets a later run say "still open, 3 days" instead of
+rediscovering it from scratch.
+
+Set `status: fixed` when it is fixed. **A bug file with no status can never
+close** — it will be counted as open forever, which is worse than never having
+written it.
 
 ---
 

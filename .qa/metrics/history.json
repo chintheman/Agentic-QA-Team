@@ -57,7 +57,7 @@
       "commits_90d": 3,
       "hotfix_touches_365d": 1,
       "open_bugs": [],
-      "last_incident": "2026-08-08T17:59:08Z"
+      "last_incident": "2026-08-08T17:59:08+00:00"
     },
     ".claude/agents/risk-scout.md": {
       "churn_90d": 70,
@@ -260,21 +260,21 @@
       "commits_90d": 3,
       "hotfix_touches_365d": 1,
       "open_bugs": [],
-      "last_incident": "2026-08-08T17:59:08Z"
+      "last_incident": "2026-08-08T17:59:08+00:00"
     },
     ".qa/RISK-RULES.yaml": {
       "churn_90d": 177,
       "commits_90d": 3,
       "hotfix_touches_365d": 1,
       "open_bugs": [],
-      "last_incident": "2026-08-08T17:59:08Z"
+      "last_incident": "2026-08-08T17:59:08+00:00"
     },
     ".qa/STRATEGY.md": {
       "churn_90d": 75,
       "commits_90d": 3,
       "hotfix_touches_365d": 1,
       "open_bugs": [],
-      "last_incident": "2026-08-08T17:59:08Z"
+      "last_incident": "2026-08-08T17:59:08+00:00"
     },
     ".qa/adapters/README.md": {
       "churn_90d": 71,
@@ -393,7 +393,7 @@
       "commits_90d": 2,
       "hotfix_touches_365d": 1,
       "open_bugs": [],
-      "last_incident": "2026-08-08T17:59:08Z"
+      "last_incident": "2026-08-08T17:59:08+00:00"
     },
     ".qa/gates/g8-route-coverage.sh": {
       "churn_90d": 35,
@@ -445,8 +445,8 @@
       "last_incident": null
     },
     ".qa/metrics/history.json": {
-      "churn_90d": 709,
-      "commits_90d": 3,
+      "churn_90d": 788,
+      "commits_90d": 4,
       "hotfix_touches_365d": 0,
       "open_bugs": [],
       "last_incident": null
@@ -547,7 +547,7 @@
       "commits_90d": 2,
       "hotfix_touches_365d": 1,
       "open_bugs": [],
-      "last_incident": "2026-08-08T17:59:08Z"
+      "last_incident": "2026-08-08T17:59:08+00:00"
     },
     ".qa/selftest/guard-selftest.sh": {
       "churn_90d": 80,
@@ -641,8 +641,8 @@
       "last_incident": null
     },
     "docs/HOW-IT-WORKS.md": {
-      "churn_90d": 151,
-      "commits_90d": 1,
+      "churn_90d": 213,
+      "commits_90d": 2,
       "hotfix_touches_365d": 0,
       "open_bugs": [],
       "last_incident": null
