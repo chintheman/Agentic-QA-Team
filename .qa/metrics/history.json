@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-10",
+  "generated": "2026-08-11",
   "window_days": 90,
   "history_truncated": false,
   "files": {
@@ -53,11 +53,11 @@
       "last_incident": null
     },
     ".claude/agents/release-marshal.md": {
-      "churn_90d": 151,
-      "commits_90d": 3,
+      "churn_90d": 176,
+      "commits_90d": 4,
       "hotfix_touches_365d": 1,
       "open_bugs": [],
-      "last_incident": "2026-08-08T17:59:08+00:00"
+      "last_incident": "2026-08-08T17:59:08Z"
     },
     ".claude/agents/risk-scout.md": {
       "churn_90d": 70,
@@ -137,8 +137,8 @@
       "last_incident": null
     },
     ".claude/hooks/qa-guard.py": {
-      "churn_90d": 229,
-      "commits_90d": 1,
+      "churn_90d": 260,
+      "commits_90d": 2,
       "hotfix_touches_365d": 0,
       "open_bugs": [],
       "last_incident": null
@@ -158,15 +158,15 @@
       "last_incident": null
     },
     ".claude/qa-ci-settings.json": {
-      "churn_90d": 30,
-      "commits_90d": 1,
+      "churn_90d": 41,
+      "commits_90d": 2,
       "hotfix_touches_365d": 0,
       "open_bugs": [],
       "last_incident": null
     },
     ".claude/settings.json": {
-      "churn_90d": 27,
-      "commits_90d": 1,
+      "churn_90d": 38,
+      "commits_90d": 2,
       "hotfix_touches_365d": 0,
       "open_bugs": [],
       "last_incident": null
@@ -207,15 +207,15 @@
       "last_incident": null
     },
     ".claude/skills/qa-repro/SKILL.md": {
-      "churn_90d": 45,
-      "commits_90d": 1,
+      "churn_90d": 59,
+      "commits_90d": 2,
       "hotfix_touches_365d": 0,
       "open_bugs": [],
       "last_incident": null
     },
     ".claude/skills/qa/SKILL.md": {
-      "churn_90d": 150,
-      "commits_90d": 2,
+      "churn_90d": 263,
+      "commits_90d": 3,
       "hotfix_touches_365d": 0,
       "open_bugs": [],
       "last_incident": null
@@ -260,21 +260,21 @@
       "commits_90d": 3,
       "hotfix_touches_365d": 1,
       "open_bugs": [],
-      "last_incident": "2026-08-08T17:59:08+00:00"
+      "last_incident": "2026-08-08T17:59:08Z"
     },
     ".qa/RISK-RULES.yaml": {
       "churn_90d": 177,
       "commits_90d": 3,
       "hotfix_touches_365d": 1,
       "open_bugs": [],
-      "last_incident": "2026-08-08T17:59:08+00:00"
+      "last_incident": "2026-08-08T17:59:08Z"
     },
     ".qa/STRATEGY.md": {
       "churn_90d": 75,
       "commits_90d": 3,
       "hotfix_touches_365d": 1,
       "open_bugs": [],
-      "last_incident": "2026-08-08T17:59:08+00:00"
+      "last_incident": "2026-08-08T17:59:08Z"
     },
     ".qa/adapters/README.md": {
       "churn_90d": 71,
@@ -313,6 +313,13 @@
     },
     ".qa/bugs/.gitkeep": {
       "churn_90d": 1,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
+    ".qa/bugs/_TEMPLATE.md": {
+      "churn_90d": 25,
       "commits_90d": 1,
       "hotfix_touches_365d": 0,
       "open_bugs": [],
@@ -393,7 +400,7 @@
       "commits_90d": 2,
       "hotfix_touches_365d": 1,
       "open_bugs": [],
-      "last_incident": "2026-08-08T17:59:08+00:00"
+      "last_incident": "2026-08-08T17:59:08Z"
     },
     ".qa/gates/g8-route-coverage.sh": {
       "churn_90d": 35,
@@ -445,8 +452,8 @@
       "last_incident": null
     },
     ".qa/metrics/history.json": {
-      "churn_90d": 788,
-      "commits_90d": 4,
+      "churn_90d": 808,
+      "commits_90d": 5,
       "hotfix_touches_365d": 0,
       "open_bugs": [],
       "last_incident": null
@@ -487,8 +494,8 @@
       "last_incident": null
     },
     ".qa/policy.yaml": {
-      "churn_90d": 260,
-      "commits_90d": 3,
+      "churn_90d": 283,
+      "commits_90d": 4,
       "hotfix_touches_365d": 0,
       "open_bugs": [],
       "last_incident": null
@@ -547,11 +554,11 @@
       "commits_90d": 2,
       "hotfix_touches_365d": 1,
       "open_bugs": [],
-      "last_incident": "2026-08-08T17:59:08+00:00"
+      "last_incident": "2026-08-08T17:59:08Z"
     },
     ".qa/selftest/guard-selftest.sh": {
-      "churn_90d": 80,
-      "commits_90d": 1,
+      "churn_90d": 104,
+      "commits_90d": 3,
       "hotfix_touches_365d": 0,
       "open_bugs": [],
       "last_incident": null
@@ -570,9 +577,16 @@
       "open_bugs": [],
       "last_incident": null
     },
+    "LICENSE": {
+      "churn_90d": 21,
+      "commits_90d": 1,
+      "hotfix_touches_365d": 0,
+      "open_bugs": [],
+      "last_incident": null
+    },
     "README.md": {
-      "churn_90d": 215,
-      "commits_90d": 6,
+      "churn_90d": 219,
+      "commits_90d": 7,
       "hotfix_touches_365d": 0,
       "open_bugs": [],
       "last_incident": null
@@ -613,8 +627,8 @@
       "last_incident": null
     },
     "agents/release-marshal.md": {
-      "churn_90d": 143,
-      "commits_90d": 1,
+      "churn_90d": 168,
+      "commits_90d": 2,
       "hotfix_touches_365d": 0,
       "open_bugs": [],
       "last_incident": null
@@ -648,15 +662,15 @@
       "last_incident": null
     },
     "docs/HOW-TO-USE.md": {
-      "churn_90d": 177,
-      "commits_90d": 1,
+      "churn_90d": 179,
+      "commits_90d": 2,
       "hotfix_touches_365d": 0,
       "open_bugs": [],
       "last_incident": null
     },
     "docs/INSTALL.md": {
-      "churn_90d": 165,
-      "commits_90d": 1,
+      "churn_90d": 194,
+      "commits_90d": 2,
       "hotfix_touches_365d": 0,
       "open_bugs": [],
       "last_incident": null
@@ -683,8 +697,8 @@
       "last_incident": null
     },
     "scripts/qa-history.py": {
-      "churn_90d": 120,
-      "commits_90d": 1,
+      "churn_90d": 129,
+      "commits_90d": 2,
       "hotfix_touches_365d": 0,
       "open_bugs": [],
       "last_incident": null
