@@ -39,6 +39,7 @@ jobs:
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ github.token }}
+          show_full_output: true
           prompt: "Run the nightly flake analysis: 30-day flake rate, quarantine expiry, suite pruning candidates, and promote any real intermittent bug to .qa/bugs/."
           claude_args: >-
             --settings .claude/qa-ci-settings.json
@@ -53,6 +54,7 @@ jobs:
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ github.token }}
+          show_full_output: true
           prompt: "Run 3 exploratory sessions from .qa/charters/backlog.md, prioritised by risk x inverse mutation score. One charter per session."
           claude_args: >-
             --settings .claude/qa-ci-settings.json
