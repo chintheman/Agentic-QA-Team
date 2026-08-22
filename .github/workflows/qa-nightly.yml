@@ -43,7 +43,7 @@ jobs:
           claude_args: >-
             --settings .claude/qa-ci-settings.json
             --agent flake-warden
-            --max-turns 25 --model claude-sonnet-4-5
+            --max-turns 45 --model claude-sonnet-4-5
             --permission-mode dontAsk --max-budget-usd 6.00
             --tools "Read,Grep,Glob,Write,Bash"
 
@@ -57,7 +57,7 @@ jobs:
           claude_args: >-
             --settings .claude/qa-ci-settings.json
             --agent prober
-            --max-turns 25 --model claude-sonnet-4-5
+            --max-turns 60 --model claude-sonnet-4-5
             --permission-mode dontAsk --max-budget-usd 12.00
             --tools "Read,Grep,Glob,Write,Bash"
 
@@ -71,7 +71,7 @@ jobs:
           claude_args: >-
             --settings .claude/qa-ci-settings.json
             --agent unit-smith
-            --max-turns 30 --model claude-sonnet-4-5
+            --max-turns 60 --model claude-sonnet-4-5
             --permission-mode dontAsk --max-budget-usd 8.00
             --tools "Read,Grep,Glob,Write,Edit,Bash"
 
