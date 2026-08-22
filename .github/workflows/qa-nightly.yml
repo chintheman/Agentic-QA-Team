@@ -44,7 +44,7 @@ jobs:
             --settings .claude/qa-ci-settings.json
             --agent flake-warden
             --max-turns 25 --model claude-sonnet-4-5
-            --permission-mode dontAsk --max-budget-usd 6.00 --output-format json
+            --permission-mode dontAsk --max-budget-usd 6.00
             --tools "Read,Grep,Glob,Write,Bash"
 
       # Three sessions, prioritised by risk x inverse mutation score.
@@ -58,7 +58,7 @@ jobs:
             --settings .claude/qa-ci-settings.json
             --agent prober
             --max-turns 25 --model claude-sonnet-4-5
-            --permission-mode dontAsk --max-budget-usd 12.00 --output-format json
+            --permission-mode dontAsk --max-budget-usd 12.00
             --tools "Read,Grep,Glob,Write,Bash"
 
       # One module per night, not a sweep — depth beats breadth here.
@@ -72,7 +72,7 @@ jobs:
             --settings .claude/qa-ci-settings.json
             --agent unit-smith
             --max-turns 30 --model claude-sonnet-4-5
-            --permission-mode dontAsk --max-budget-usd 8.00 --output-format json
+            --permission-mode dontAsk --max-budget-usd 8.00
             --tools "Read,Grep,Glob,Write,Edit,Bash"
 
       - name: Compact per-PR metrics into the rolling corpus
