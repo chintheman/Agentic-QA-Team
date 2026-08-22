@@ -67,6 +67,7 @@ jobs:
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ github.token }}
+          show_full_output: true
           prompt: "Identify the single lowest-mutation-score high-risk module and run the mutation loop on it. One module only."
           claude_args: >-
             --settings .claude/qa-ci-settings.json
