@@ -25,6 +25,19 @@ jobs:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
 
+      # Fail in seconds with a named cause rather than burning three agent
+      # steps on an empty credential. The action only errors out *inside* the
+      # SDK, which reads as a generic step failure.
+      - name: Preflight — required secret is present
+        env:
+          OAUTH: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+        run: |
+          if [ -z "$OAUTH" ]; then
+            echo "::error::Secret CLAUDE_CODE_OAUTH_TOKEN is not set on this repo. Generate one with 'claude setup-token' and run: gh secret set CLAUDE_CODE_OAUTH_TOKEN --repo ${{ github.repository }}"
+            exit 1
+          fi
+          echo "CLAUDE_CODE_OAUTH_TOKEN present (${#OAUTH} chars)"
+
       - name: Confirm history is fresh
         run: |
           # risk-scout and the charter prioritisation both read this. If it is
@@ -34,7 +47,12 @@ jobs:
           echo "history.json generated: $gen"
           [ "$gen" = "$(date -u +%Y-%m-%d)" ] || echo "::warning::history.json is not from today ($gen)"
 
+      # The three sessions are independent. One dying must not discard the work
+      # the other two already paid for — so they continue-on-error and the job
+      # verdict is decided by the gate step at the end.
       - name: flake-warden — 30-day analysis, quarantine, pruning
+        id: flake_warden
+        continue-on-error: true
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
@@ -43,12 +61,14 @@ jobs:
           claude_args: >-
             --settings .claude/qa-ci-settings.json
             --agent flake-warden
-            --max-turns 45 --model claude-sonnet-4-5
+            --max-turns 60 --model claude-sonnet-4-5
             --permission-mode dontAsk --max-budget-usd 6.00
             --tools "Read,Grep,Glob,Write,Bash"
 
       # Three sessions, prioritised by risk x inverse mutation score.
       - name: prober — exploratory sessions
+        id: prober
+        continue-on-error: true
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
@@ -62,11 +82,16 @@ jobs:
             --tools "Read,Grep,Glob,Write,Bash"
 
       # One module per night, not a sweep — depth beats breadth here.
+      # show_full_output stays until the is_error:true seen in run 32549823920
+      # (21 turns, $0.23, no billing error) has an identified cause.
       - name: unit-smith — harden the weakest high-risk module
+        id: unit_smith
+        continue-on-error: true
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           github_token: ${{ github.token }}
+          show_full_output: true
           prompt: "Identify the single lowest-mutation-score high-risk module and run the mutation loop on it. One module only."
           claude_args: >-
             --settings .claude/qa-ci-settings.json
@@ -76,16 +101,56 @@ jobs:
             --tools "Read,Grep,Glob,Write,Edit,Bash"
 
       - name: Compact per-PR metrics into the rolling corpus
+        if: always()
         run: python3 scripts/qa-compact-metrics.py || true
 
       - name: Open a PR only if something warrants attention
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           git config user.name "qa-team[bot]"
           git config user.email "qa-team@users.noreply.github.com"
-          if git diff --quiet && git diff --staged --quiet; then
+          # git diff is blind to untracked files, and a new .qa/bugs/ entry is
+          # the single most common thing this sweep produces. Use status.
+          if [ -z "$(git status --porcelain)" ]; then
             echo "nothing to report"; exit 0
           fi
-          branch="qa/nightly-$(date -u +%Y%m%d)"
+          branch="qa/nightly-$(date -u +%Y%m%d)-${{ github.run_number }}"
           git checkout -b "$branch"
           git add -A && git commit -m "chore(qa): nightly sweep $(date -u +%Y-%m-%d)"
           git push -u origin "$branch"
+          # Heredoc, not an inline quoted string: indented continuation
+          # lines would otherwise render the table as a code block.
+          cat > /tmp/pr-body.md <<EOF
+          Automated nightly sweep.
+
+          | session | outcome |
+          | --- | --- |
+          | flake-warden | ${{ steps.flake_warden.outcome }} |
+          | prober | ${{ steps.prober.outcome }} |
+          | unit-smith | ${{ steps.unit_smith.outcome }} |
+
+          Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          EOF
+          gh pr create \
+            --base "$QA_DEFAULT_BRANCH" \
+            --head "$branch" \
+            --title "chore(qa): nightly sweep $(date -u +%Y-%m-%d)" \
+            --body-file /tmp/pr-body.md
+
+      # Partial results are salvaged above; the job still goes red so a failing
+      # session cannot hide behind a green nightly.
+      - name: Gate — fail the job if any session failed
+        if: always()
+        run: |
+          fw='${{ steps.flake_warden.outcome }}'
+          pr='${{ steps.prober.outcome }}'
+          us='${{ steps.unit_smith.outcome }}'
+          echo "flake-warden=$fw prober=$pr unit-smith=$us"
+          rc=0
+          for pair in "flake-warden:$fw" "prober:$pr" "unit-smith:$us"; do
+            name="${pair%%:*}"; out="${pair##*:}"
+            [ "$out" = "success" ] || { echo "::error::$name outcome=$out"; rc=1; }
+          done
+          exit $rc
