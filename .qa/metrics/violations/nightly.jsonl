@@ -1,0 +1,2 @@
+{"agent": "flake-warden", "tool": "Write", "rule": "write_allow", "detail": ".qa/reports/flake-warden-2026-08-22.md"}
+{"agent": "unit-smith", "tool": "Write", "rule": "write_allow", "detail": ".qa/oracles/qa-guard.md"}
