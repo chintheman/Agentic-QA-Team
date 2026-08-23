@@ -1,0 +1,2 @@
+{"agent": "flake-warden", "tool": "Write", "rule": "write_allow", "detail": ".qa/quarantine.json"}
+{"agent": "unit-smith", "tool": "Write", "rule": "write_allow", "detail": ".qa/oracles/qa-guard.md"}
