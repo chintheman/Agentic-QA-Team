@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-22",
+  "generated": "2026-08-23",
   "window_days": 90,
   "history_truncated": false,
   "files": {
@@ -228,11 +228,11 @@
       "last_incident": null
     },
     ".github/workflows/qa-nightly.yml": {
-      "churn_90d": 88,
-      "commits_90d": 1,
-      "hotfix_touches_365d": 0,
+      "churn_90d": 186,
+      "commits_90d": 9,
+      "hotfix_touches_365d": 1,
       "open_bugs": [],
-      "last_incident": null
+      "last_incident": "2026-08-22T12:19:35+08:00"
     },
     ".github/workflows/qa-pr.yml": {
       "churn_90d": 298,
@@ -452,8 +452,8 @@
       "last_incident": null
     },
     ".qa/metrics/history.json": {
-      "churn_90d": 952,
-      "commits_90d": 16,
+      "churn_90d": 958,
+      "commits_90d": 17,
       "hotfix_touches_365d": 0,
       "open_bugs": [],
       "last_incident": null
@@ -726,6 +726,7 @@
     }
   },
   "recent_hotfix_paths": [
+    ".github/workflows/qa-nightly.yml",
     ".claude/agents/release-marshal.md",
     ".qa/PROFILE.md",
     ".qa/RISK-RULES.yaml",
