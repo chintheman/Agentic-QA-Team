@@ -1,0 +1,2 @@
+{"agent": "prober", "tool": "Write", "rule": "write_allow", "detail": "../../../../../tmp/test_qa_guard_session1.py"}
+{"agent": "unit-smith", "tool": "Write", "rule": "write_allow", "detail": ".qa/oracles/mutmut-normalise.md"}
