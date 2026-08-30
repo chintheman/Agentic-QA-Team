@@ -1,0 +1,2 @@
+{"agent": "prober", "tool": "Write", "rule": "write_allow", "detail": "../../../../../tmp/test_glob_conversion.py"}
+{"agent": "unit-smith", "tool": "Write", "rule": "write_allow", "detail": ".qa/oracles/qa-guard.md"}
