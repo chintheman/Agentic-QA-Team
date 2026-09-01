@@ -1,0 +1,2 @@
+{"agent": "flake-warden", "tool": "Write", "rule": "write_allow", "detail": ".qa/reports/flake-warden-2026-09-01.md"}
+{"agent": "unit-smith", "tool": "Write", "rule": "write_allow", "detail": ".qa/oracles/mutmut-normalise.md"}
