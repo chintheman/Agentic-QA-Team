@@ -1,0 +1,1 @@
+{"agent": "unit-smith", "tool": "Write", "rule": "write_allow", "detail": ".qa/oracles/mutmut-normalise.md"}
