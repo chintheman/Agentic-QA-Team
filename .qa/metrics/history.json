@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-09",
+  "generated": "2026-09-10",
   "window_days": 90,
   "history_truncated": false,
   "files": {
@@ -452,8 +452,8 @@
       "last_incident": null
     },
     ".qa/metrics/history.json": {
-      "churn_90d": 1069,
-      "commits_90d": 34,
+      "churn_90d": 1075,
+      "commits_90d": 35,
       "hotfix_touches_365d": 0,
       "open_bugs": [],
       "last_incident": null
