@@ -7,20 +7,75 @@ name: qa-nightly
 
 on:
   schedule:
-    - cron: "0 2 * * *"      # after qa-history
+    # Two slots. The primary does the sweep; the retry slot does the work only
+    # if the primary could not.
+    #
+    # Why a retry slot exists: these sessions authenticate with the *subscription*
+    # token, which is capped by a rolling 5-hour window shared with the owner's
+    # local Claude Code use. When that window is exhausted the API rejects every
+    # session instantly — 429, one turn, $0, ~0.5s — so the whole sweep dies
+    # before it runs. The sessions now defer on that (see the gate step) and this
+    # slot picks the sweep up once the window has rolled over. In practice both
+    # fire several hours after their nominal time; the retry lands after
+    # midnight SGT, when the window is normally clear.
+    - cron: "0 2 * * *"       # primary — after qa-history
+    - cron: "0 12 * * *"      # retry — if the primary deferred
   workflow_dispatch:
 
 permissions:
   contents: write
   pull-requests: write
+  actions: read           # the retry slot reads this workflow's own run history
 
 jobs:
+  # A deferred primary must not talk the retry slot out of its work, and a real
+  # primary must not be repeated. A real sweep takes 10-14 minutes; a run that
+  # deferred — or that died before the sessions could work — finishes in well
+  # under one. Duration is what separates "the sweep happened" from "the slot
+  # opened and shut", and it survives the gate's exit code staying green.
+  guard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      run: ${{ steps.check.outputs.run }}
+    steps:
+      - id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "run=true" >> "$GITHUB_OUTPUT"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "Manual dispatch — running the sweep."
+            exit 0
+          fi
+          today=$(date -u +%Y-%m-%dT00:00:00Z)
+          # Unreadable history must not silently cancel the sweep: any failure
+          # here leaves run=true.
+          real=$(gh api \
+            "repos/${{ github.repository }}/actions/workflows/qa-nightly.yml/runs?status=success&per_page=30" \
+            --jq "[.workflow_runs[]
+                   | select(.created_at >= \"$today\")
+                   | select(((.updated_at | fromdate) - (.run_started_at | fromdate)) > 300)]
+                  | length" 2>/dev/null || echo 0)
+          if [ "${real:-0}" -gt 0 ] 2>/dev/null; then
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::A sweep already completed today ($real run(s) over 5 minutes) — this slot is redundant."
+          else
+            echo "No completed sweep today — running."
+          fi
+
   sweep:
+    needs: guard
+    if: needs.guard.outputs.run == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 90
     env:
       QA_PR: nightly
       QA_DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+      # Which cron fired this run decides whether a rate-limited sweep may
+      # defer (primary) or must be reported (fallback): if the retry slot is
+      # also locked out, the nightly analysis has not happened at all.
+      QA_SLOT: ${{ github.event.schedule == '0 12 * * *' && 'fallback' || 'primary' }}
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
@@ -50,7 +105,8 @@ jobs:
       # The three sessions are independent. One dying must not discard the work
       # the other two already paid for — so they continue-on-error and the job
       # verdict is decided by the gate step at the end.
-      - name: flake-warden — 30-day analysis, quarantine, pruning
+      -
+        name: flake-warden — 30-day analysis, quarantine, pruning
         id: flake_warden
         continue-on-error: true
         uses: anthropics/claude-code-action@v1
@@ -64,9 +120,25 @@ jobs:
             --max-turns 60 --model claude-sonnet-4-5
             --permission-mode dontAsk --max-budget-usd 6.00
             --tools "Read,Grep,Glob,Write,Bash"
+      # The action writes every session's transcript to one fixed path
+      # ($RUNNER_TEMP/claude-execution-output.json) and overwrites it, so each
+      # one is copied out before the next session can clobber it. The gate
+      # reads these copies to tell a rate-limited session from a broken one.
+      -
+        name: Capture flake-warden log
+        if: always()
+        run: |
+          mkdir -p "$RUNNER_TEMP/qa-results"
+          src='${{ steps.flake_warden.outputs.execution_file }}'
+          if [ -n "$src" ] && [ -f "$src" ]; then
+            cp "$src" "$RUNNER_TEMP/qa-results/flake-warden.json"
+          else
+            echo "no execution log published for flake-warden"
+          fi
 
       # Three sessions, prioritised by risk x inverse mutation score.
-      - name: prober — exploratory sessions
+      -
+        name: prober — exploratory sessions
         id: prober
         continue-on-error: true
         uses: anthropics/claude-code-action@v1
@@ -80,11 +152,23 @@ jobs:
             --max-turns 60 --model claude-sonnet-4-5
             --permission-mode dontAsk --max-budget-usd 12.00
             --tools "Read,Grep,Glob,Write,Bash"
+      -
+        name: Capture prober log
+        if: always()
+        run: |
+          mkdir -p "$RUNNER_TEMP/qa-results"
+          src='${{ steps.prober.outputs.execution_file }}'
+          if [ -n "$src" ] && [ -f "$src" ]; then
+            cp "$src" "$RUNNER_TEMP/qa-results/prober.json"
+          else
+            echo "no execution log published for prober"
+          fi
 
       # One module per night, not a sweep — depth beats breadth here.
       # show_full_output stays until the is_error:true seen in run 32549823920
       # (21 turns, $0.23, no billing error) has an identified cause.
-      - name: unit-smith — harden the weakest high-risk module
+      -
+        name: unit-smith — harden the weakest high-risk module
         id: unit_smith
         continue-on-error: true
         uses: anthropics/claude-code-action@v1
@@ -99,6 +183,17 @@ jobs:
             --max-turns 60 --model claude-sonnet-4-5
             --permission-mode dontAsk --max-budget-usd 8.00
             --tools "Read,Grep,Glob,Write,Edit,Bash"
+      -
+        name: Capture unit-smith log
+        if: always()
+        run: |
+          mkdir -p "$RUNNER_TEMP/qa-results"
+          src='${{ steps.unit_smith.outputs.execution_file }}'
+          if [ -n "$src" ] && [ -f "$src" ]; then
+            cp "$src" "$RUNNER_TEMP/qa-results/unit-smith.json"
+          else
+            echo "no execution log published for unit-smith"
+          fi
 
       - name: Compact per-PR metrics into the rolling corpus
         if: always()
@@ -140,17 +235,14 @@ jobs:
             --body-file /tmp/pr-body.md
 
       # Partial results are salvaged above; the job still goes red so a failing
-      # session cannot hide behind a green nightly.
-      - name: Gate — fail the job if any session failed
+      # session cannot hide behind a green nightly. The one exception is a
+      # sweep locked out by the subscription window at the primary slot: that
+      # is transient, no verdict was reached, and the retry slot re-runs it —
+      # so it defers out loud instead of failing. See scripts/qa-nightly-gate.py.
+      - name: Gate — decide the verdict from the sessions' own logs
         if: always()
-        run: |
-          fw='${{ steps.flake_warden.outcome }}'
-          pr='${{ steps.prober.outcome }}'
-          us='${{ steps.unit_smith.outcome }}'
-          echo "flake-warden=$fw prober=$pr unit-smith=$us"
-          rc=0
-          for pair in "flake-warden:$fw" "prober:$pr" "unit-smith:$us"; do
-            name="${pair%%:*}"; out="${pair##*:}"
-            [ "$out" = "success" ] || { echo "::error::$name outcome=$out"; rc=1; }
-          done
-          exit $rc
+        env:
+          QA_OUTCOMES: flake-warden=${{ steps.flake_warden.outcome }},prober=${{ steps.prober.outcome }},unit-smith=${{ steps.unit_smith.outcome }}
+          QA_RESULTS: ${{ runner.temp }}/qa-results
+          QA_ANNOTATE: "1"
+        run: python3 scripts/qa-nightly-gate.py
