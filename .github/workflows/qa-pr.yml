@@ -162,11 +162,6 @@ jobs:
           # takes the OVERRIDE_GITHUB_TOKEN path instead — the same
           # authentication qa-nightly already uses.
           github_token: ${{ github.token }}
-          # Same unreported is_error:true as qa-nightly run 32549823920 -- a
-          # session that dies on turn 1 for $0 with no error text in the log.
-          # Temporary, matching the nightly's unit-smith step: remove once the
-          # cause is named.
-          show_full_output: true
           prompt: "/qa-risk ${{ github.event.pull_request.number }}"
           # No --output-format: the action drives the CLI with
           # --input-format=stream-json and parses the stream itself. Any other
