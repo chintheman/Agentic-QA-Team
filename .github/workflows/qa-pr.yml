@@ -155,6 +155,13 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # claude-code-action@v1 falls back to OIDC + an Anthropic app-token
+          # exchange when no github_token is supplied, which dies at token
+          # setup on this workflow: "Could not fetch an OIDC token. Did you
+          # remember to add `id-token: write`". Passing the workflow token
+          # takes the OVERRIDE_GITHUB_TOKEN path instead — the same
+          # authentication qa-nightly already uses.
+          github_token: ${{ github.token }}
           prompt: "/qa-risk ${{ github.event.pull_request.number }}"
           claude_args: >-
             --settings .claude/qa-ci-settings.json
@@ -208,6 +215,13 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # claude-code-action@v1 falls back to OIDC + an Anthropic app-token
+          # exchange when no github_token is supplied, which dies at token
+          # setup on this workflow: "Could not fetch an OIDC token. Did you
+          # remember to add `id-token: write`". Passing the workflow token
+          # takes the OVERRIDE_GITHUB_TOKEN path instead — the same
+          # authentication qa-nightly already uses.
+          github_token: ${{ github.token }}
           prompt: "/qa-oracle ${{ github.event.pull_request.number }}"
           claude_args: >-
             --settings .claude/qa-ci-settings.json
@@ -226,6 +240,13 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # claude-code-action@v1 falls back to OIDC + an Anthropic app-token
+          # exchange when no github_token is supplied, which dies at token
+          # setup on this workflow: "Could not fetch an OIDC token. Did you
+          # remember to add `id-token: write`". Passing the workflow token
+          # takes the OVERRIDE_GITHUB_TOKEN path instead — the same
+          # authentication qa-nightly already uses.
+          github_token: ${{ github.token }}
           prompt: "/qa-test changed files for PR ${{ github.event.pull_request.number }}"
           claude_args: >-
             --settings .claude/qa-ci-settings.json
@@ -252,6 +273,13 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # claude-code-action@v1 falls back to OIDC + an Anthropic app-token
+          # exchange when no github_token is supplied, which dies at token
+          # setup on this workflow: "Could not fetch an OIDC token. Did you
+          # remember to add `id-token: write`". Passing the workflow token
+          # takes the OVERRIDE_GITHUB_TOKEN path instead — the same
+          # authentication qa-nightly already uses.
+          github_token: ${{ github.token }}
           prompt: "/qa-verdict ${{ github.event.pull_request.number }}"
           claude_args: >-
             --settings .claude/qa-ci-settings.json
