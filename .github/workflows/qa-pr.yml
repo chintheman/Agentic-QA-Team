@@ -155,7 +155,18 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # claude-code-action@v1 falls back to OIDC + an Anthropic app-token
+          # exchange when no github_token is supplied, which dies at token
+          # setup on this workflow: "Could not fetch an OIDC token. Did you
+          # remember to add `id-token: write`". Passing the workflow token
+          # takes the OVERRIDE_GITHUB_TOKEN path instead — the same
+          # authentication qa-nightly already uses.
+          github_token: ${{ github.token }}
           prompt: "/qa-risk ${{ github.event.pull_request.number }}"
+          # No --output-format: the action drives the CLI with
+          # --input-format=stream-json and parses the stream itself. Any other
+          # output format makes the CLI exit 1 before a turn runs --
+          # "--input-format=stream-json requires output-format=stream-json".
           claude_args: >-
             --settings .claude/qa-ci-settings.json
             --agent risk-scout
@@ -163,7 +174,6 @@ jobs:
             --model claude-haiku-4-5-20251001
             --permission-mode dontAsk
             --max-budget-usd 0.50
-            --output-format json
             --tools "Read,Grep,Glob,Bash,Write"
             --allowedTools "Read,Grep,Glob,Bash(git diff:*),Bash(git status:*),Write"
       - id: band
@@ -208,12 +218,19 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # claude-code-action@v1 falls back to OIDC + an Anthropic app-token
+          # exchange when no github_token is supplied, which dies at token
+          # setup on this workflow: "Could not fetch an OIDC token. Did you
+          # remember to add `id-token: write`". Passing the workflow token
+          # takes the OVERRIDE_GITHUB_TOKEN path instead — the same
+          # authentication qa-nightly already uses.
+          github_token: ${{ github.token }}
           prompt: "/qa-oracle ${{ github.event.pull_request.number }}"
           claude_args: >-
             --settings .claude/qa-ci-settings.json
             --agent spec-oracle
             --max-turns 20 --model claude-opus-4-5 --effort high
-            --permission-mode dontAsk --max-budget-usd 3.00 --output-format json
+            --permission-mode dontAsk --max-budget-usd 3.00
             --tools "Read,Grep,Glob,WebFetch,Write"
 
       - name: G7 — oracle completeness
@@ -226,12 +243,19 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # claude-code-action@v1 falls back to OIDC + an Anthropic app-token
+          # exchange when no github_token is supplied, which dies at token
+          # setup on this workflow: "Could not fetch an OIDC token. Did you
+          # remember to add `id-token: write`". Passing the workflow token
+          # takes the OVERRIDE_GITHUB_TOKEN path instead — the same
+          # authentication qa-nightly already uses.
+          github_token: ${{ github.token }}
           prompt: "/qa-test changed files for PR ${{ github.event.pull_request.number }}"
           claude_args: >-
             --settings .claude/qa-ci-settings.json
             --agent unit-smith
             --max-turns 30 --model claude-sonnet-4-5 --effort high
-            --permission-mode dontAsk --max-budget-usd 5.00 --output-format json
+            --permission-mode dontAsk --max-budget-usd 5.00
             --tools "Read,Grep,Glob,Write,Edit,Bash"
 
       # --- the gates. Order matters: cheap and certain first. ---------------
@@ -252,12 +276,19 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # claude-code-action@v1 falls back to OIDC + an Anthropic app-token
+          # exchange when no github_token is supplied, which dies at token
+          # setup on this workflow: "Could not fetch an OIDC token. Did you
+          # remember to add `id-token: write`". Passing the workflow token
+          # takes the OVERRIDE_GITHUB_TOKEN path instead — the same
+          # authentication qa-nightly already uses.
+          github_token: ${{ github.token }}
           prompt: "/qa-verdict ${{ github.event.pull_request.number }}"
           claude_args: >-
             --settings .claude/qa-ci-settings.json
             --agent release-marshal
             --max-turns 20 --model claude-opus-4-5 --effort high
-            --permission-mode dontAsk --max-budget-usd 2.00 --output-format json
+            --permission-mode dontAsk --max-budget-usd 2.00
             --tools "Read,Grep,Glob,Write"
 
       - name: G7 — marshal completeness
